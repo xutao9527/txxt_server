@@ -71,6 +71,7 @@ dependencies = [
 name = "app"
 version = "0.1.0"
 dependencies = [
+ "bytes",
  "futures-util",
  "tokio",
  "tokio-util",

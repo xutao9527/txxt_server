@@ -1,10 +1,5 @@
 [workspace]
-members = [
-    "common",
-    "app", 
-    "dealer",
-    "dbs",
-]
+members = ["common", "app", "dealer", "dbs"]
 resolver = "2"
 
 [workspace.dependencies]
@@ -14,3 +9,5 @@ tokio-util = { version = "0.7.12", features = ["codec"] }
 serde = "1.0.214"
 dotenv = "0.15.0"
 url = "2.5.3"
+futures-util = "0.3.31"
+bytes = "1.8.0"

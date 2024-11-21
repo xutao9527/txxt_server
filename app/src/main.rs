@@ -1,5 +1,8 @@
 use futures_util::StreamExt;
-use tokio::net::{TcpListener, TcpStream};
+use tokio::{
+    io::AsyncWriteExt,
+    net::{TcpListener, TcpStream},
+};
 use tokio_util::codec::{FramedRead, LengthDelimitedCodec};
 
 #[tokio::main]
@@ -9,7 +12,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     loop {
         let (stream, addr) = listener.accept().await?;
         println!("New connection from: {}", addr);
-        // 使用 tokio::spawn 为每个连接启动一个独立任务
         tokio::spawn(async move {
             if let Err(e) = handle_client(stream, addr).await {
                 eprintln!("Error handling connection from {}: {}", addr, e);
@@ -22,19 +24,46 @@ async fn handle_client(
     stream: TcpStream,
     addr: std::net::SocketAddr,
 ) -> Result<(), Box<dyn std::error::Error>> {
-   
     let (reader, writer) = stream.into_split();
-    let  _ = tokio::io::BufWriter::new(writer);
+    let mut writer = tokio::io::BufWriter::new(writer);
     let mut reader = FramedRead::new(reader, LengthDelimitedCodec::new());
-
     while let Some(data) = reader.next().await {
         match data {
             Ok(data) => {
-                let msg = String::from_utf8(data.to_vec())?;
+                let mut msg = String::from_utf8(data.to_vec())?;
                 println!("Received from {}: {}", addr, msg);
+                msg.push('a');
+                println!("Send data {}: {}", addr, msg);
+                writer.write(msg.as_bytes()).await?;
+                writer.flush().await?;
             }
             Err(e) => return Err(e.into()),
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use tokio_util::codec::Encoder;
+    #[test]
+    fn encode() {
+        let mut codec = tokio_util::codec::LengthDelimitedCodec::new();
+        let data = bytes::Bytes::from("123456789123123456789123123456789123");
+        let mut dst = bytes::BytesMut::new();
+        let _ = codec.encode(data, &mut dst);
+        let result: Vec<u8> = dst.to_vec();
+        let binary_output: String = result
+            .iter()
+            .map(|byte| format!("{:08b}", byte)) // 每个字节格式化为8位二进制
+            .collect::<Vec<String>>()
+            .join(" ");
+        println!("Binary output: {}", binary_output);
+        let hex_output: String = result
+            .iter()
+            .map(|byte| format!("{:02x}", byte)) // 每个字节格式化为两位十六进制
+            .collect::<Vec<String>>()
+            .join("");
+        println!("Hexadecimal output: {}", hex_output);
+    }
 }
