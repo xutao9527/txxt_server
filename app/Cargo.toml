@@ -1,0 +1,12 @@
+[package]
+name = "app"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { workspace = true , features = ["full"]}
+# dotenv = { workspace = true }
+# sea-orm = { workspace = true }
+# common = {path = "../common"}
+# dealer = {path = "../dealer"}
+# dbs ={ path = "../dbs"}

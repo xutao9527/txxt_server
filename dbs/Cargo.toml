@@ -1,0 +1,11 @@
+[package]
+name = "dbs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { workspace = true , features = ["full"]}
+dotenv = { workspace = true }
+sea-orm = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+common = {path = "../common"}
