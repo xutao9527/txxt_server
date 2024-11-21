@@ -1,16 +1,17 @@
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use futures_util::StreamExt;
 use tokio::net::{TcpListener, TcpStream};
+use tokio_util::codec::{FramedRead, LengthDelimitedCodec};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let listener = TcpListener::bind("127.0.0.1:8080").await?;
     println!("Server running on 127.0.0.1:8080");
     loop {
-        let (socket, addr) = listener.accept().await?;
+        let (stream, addr) = listener.accept().await?;
         println!("New connection from: {}", addr);
         // 使用 tokio::spawn 为每个连接启动一个独立任务
         tokio::spawn(async move {
-            if let Err(e) = handle_client(socket, addr).await {
+            if let Err(e) = handle_client(stream, addr).await {
                 eprintln!("Error handling connection from {}: {}", addr, e);
             }
         });
@@ -18,20 +19,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 async fn handle_client(
-    mut socket: TcpStream,
+    stream: TcpStream,
     addr: std::net::SocketAddr,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let mut buffer = [0; 1024];
-    loop {
-        let n = socket.read(&mut buffer).await?;
-        if n == 0 {
-            println!("Connection closed by {}", addr);
-            break;
+   
+    let (reader, writer) = stream.into_split();
+    let  _ = tokio::io::BufWriter::new(writer);
+    let mut reader = FramedRead::new(reader, LengthDelimitedCodec::new());
+
+    while let Some(data) = reader.next().await {
+        match data {
+            Ok(data) => {
+                let msg = String::from_utf8(data.to_vec())?;
+                println!("Received from {}: {}", addr, msg);
+            }
+            Err(e) => return Err(e.into()),
         }
-        buffer[n] = b'\n';
-        // println!("Received from {}: {:?}", addr, &buffer[..n]);
-        // println!("Send to {}: {:?}", addr, &buffer[..(n+1)]);
-        socket.write_all(&buffer[..n + 1]).await?;
     }
     Ok(())
 }
