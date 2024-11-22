@@ -7,5 +7,5 @@ edition = "2021"
 tokio = { workspace = true , features = ["full"]}
 dotenv = { workspace = true }
 sea-orm = { workspace = true }
-serde = { workspace = true, features = ["derive"] }
+serde = { workspace = true }
 common = {path = "../common"}

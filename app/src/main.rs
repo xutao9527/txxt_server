@@ -37,6 +37,7 @@ async fn handle_client(
             Err(e) => return Err(e.into()),
         }
     }
+    println!("Client {} disconnected", addr);
     Ok(())
 }
 
