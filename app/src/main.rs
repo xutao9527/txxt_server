@@ -1,9 +1,7 @@
-use futures_util::StreamExt;
-use tokio::{
-    io::AsyncWriteExt,
-    net::{TcpListener, TcpStream},
-};
-use tokio_util::codec::{FramedRead, LengthDelimitedCodec};
+use futures_util::{SinkExt, StreamExt};
+use tokio::net::TcpListener;
+use tokio::net::TcpStream;
+use tokio_util::codec::{FramedRead, FramedWrite, LengthDelimitedCodec};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -25,7 +23,7 @@ async fn handle_client(
     addr: std::net::SocketAddr,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let (reader, writer) = stream.into_split();
-    let mut writer = tokio::io::BufWriter::new(writer);
+    let mut writer = FramedWrite::new(writer, LengthDelimitedCodec::new());
     let mut reader = FramedRead::new(reader, LengthDelimitedCodec::new());
     while let Some(data) = reader.next().await {
         match data {
@@ -33,9 +31,8 @@ async fn handle_client(
                 let mut msg = String::from_utf8(data.to_vec())?;
                 println!("Received from {}: {}", addr, msg);
                 msg.push('a');
-                println!("Send data {}: {}", addr, msg);
-                writer.write(msg.as_bytes()).await?;
-                writer.flush().await?;
+                println!("Send data to {}: {}", addr, msg);
+                writer.send("msga".into()).await?;
             }
             Err(e) => return Err(e.into()),
         }

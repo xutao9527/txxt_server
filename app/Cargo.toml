@@ -8,8 +8,3 @@ bytes = { workspace = true }
 tokio = { workspace = true , features = ["full"]}
 tokio-util = { workspace = true }
 futures-util = { workspace = true }
-# dotenv = { workspace = true }
-# sea-orm = { workspace = true }
-# common = {path = "../common"}
-# dealer = {path = "../dealer"}
-# dbs ={ path = "../dbs"}

@@ -5,6 +5,6 @@ edition = "2021"
 
 
 [dependencies]
-tokio = { workspace = true, features = ["full"] }
+tokio = { workspace = true}
 sea-orm = { workspace = true }
-url = { workspace = true }
+# url = { workspace = true }
