@@ -3,11 +3,11 @@ members = ["common", "app", "dealer", "dbs"]
 resolver = "2"
 
 [workspace.dependencies]
+dotenv = "0.15.0"
 sea-orm = { version = "1.1.1", features = ["sqlx-sqlite", "runtime-tokio-native-tls", "macros"] }
 tokio = "1.41.0"
 tokio-util = { version = "0.7.12", features = ["codec"] }
-serde = "1.0.214"
-dotenv = "0.15.0"
-url = "2.5.3"
 futures-util = "0.3.31"
 bytes = "1.8.0"
+url = "2.5.3"
+serde = "1.0.214"
