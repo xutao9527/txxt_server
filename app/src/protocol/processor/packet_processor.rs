@@ -1,75 +1,64 @@
-// use std::collections::HashMap;
-// use crate::protocol::definition::packet_request::PacketRequest;
-// use crate::protocol::handler::packet_handler::PacketHandler;
-// use crate::protocol::payload::packet_payload::PacketPayload;
-// use crate::protocol::payload::packet_type::PacketType;
-//
-// type BoxedHandler = Box<dyn Fn(PacketPayload) + Send + Sync>;
-//
-// pub struct AsyncPacketProcessor {
-//     handlers: HashMap<PacketType, BoxedHandler>,
-// }
-//
-// impl AsyncPacketProcessor {
-//     pub fn new() -> Self {
-//         Self {
-//             handlers: HashMap::new(),
-//         }
-//     }
-//
-//     pub fn register_handler<H>(&mut self, packet_type: PacketType)
-//         where
-//             H: PacketHandler,
-//             H::Payload: Into<PacketPayload>,
-//     {
-//         let packet_type_clone = packet_type.clone();
-//         let handler = move |payload: PacketPayload| {
-//             if let Ok(payload) = serde_json::from_value(serde_json::to_value(payload).unwrap()) {
-//                 H::handle(payload);
-//             } else {
-//                 // 直接使用 msg_type，这时 msg_type 的所有权已经转移到闭包中了
-//                 eprintln!("Failed to process payload for {:?}", packet_type_clone);
-//             }
-//         };
-//         self.handlers.insert(packet_type, Box::new(handler));
-//     }
-//
-//     // pub fn process(&self, req: PacketRequest) {
-//     //     if let Some(handler) = self.handlers.get(&req.packet_type) {
-//     //         handler(req.packet_payload);
-//     //     } else {
-//     //         eprintln!("No handler found for {:?}", req.packet_type);
-//     //     }
-//     // }
-// }
-//
-// #[cfg(test)]
-// mod tests {
-//     use crate::protocol::definition::packet_request::PacketRequest;
-//     use crate::protocol::handler::test_one_handler::TestOneHandler;
-//     use crate::protocol::handler::test_two_handler::TestTwoHandler;
-//     use crate::protocol::payload::packet_payload::PacketPayload;
-//     use crate::protocol::payload::packet_type::PacketType;
-//     use crate::protocol::payload::test_one::TestOne;
-//     use crate::protocol::payload::test_two::TestTwo;
-//     use crate::protocol::processor::packet_processor::AsyncPacketProcessor;
-//
-//     #[test]
-//     fn test_process() {
-//         let pkg_req1 = PacketRequest {
-//             packet_type: PacketType::TestOne,
-//             packet_payload: PacketPayload::TestOne(TestOne::default()),
-//         };
-//         let pkg_req2 = PacketRequest {
-//             packet_type: PacketType::TestTwo,
-//             packet_payload: PacketPayload::TestTwo(TestTwo::default()),
-//         };
-//         //let pkg_str = serde_json::to_string(&pkg_req).expect("Failed to serialize to JSON");
-//         let mut processor = AsyncPacketProcessor::new();
-//         processor.register_handler::<TestOneHandler>(PacketType::TestOne);
-//         processor.register_handler::<TestTwoHandler>(PacketType::TestTwo);
-//
-//         processor.process(pkg_req1);
-//         processor.process(pkg_req2);
-//     }
-// }
+use crate::protocol::definition::packet_payload::PacketPayload;
+use crate::protocol::definition::packet_request::PacketRequest;
+use crate::protocol::definition::packet_type::PacketType;
+use crate::protocol::handler::payload_one_handler::PayloadOneHandler;
+use crate::protocol::handler::payload_two_handler::PayloadTwoHandler;
+
+// 模拟处理不同类型的 payload
+fn process_packet(packet: PacketRequest) {
+    match packet.packet_type {
+        PacketType::TestOne => {
+            // 反序列化为 PayloadOne 并调用处理器
+            if let PacketPayload::TestOne(payload) = packet.packet_payload {
+                PayloadOneHandler::process(payload);
+            } else {
+                eprintln!("Unexpected payload for TestOne");
+            }
+        }
+        PacketType::TestTwo => {
+            // 反序列化为 PayloadTwo 并调用处理器
+            if let PacketPayload::TestTwo(payload) = packet.packet_payload {
+                PayloadTwoHandler::process(payload);
+            } else {
+                eprintln!("Unexpected payload for TestTwo");
+            }
+        }
+
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_process_packet() {
+        // 假设从网络上接收到的 JSON 字符串
+        let json_str = r#"{
+            "packet_type": "TestOne",
+            "packet_payload": {"one": "Payload for TestOne"}
+        }"#;
+
+        // 将 JSON 字符串解析为 PacketRequest 对象
+        let request: PacketRequest = serde_json::from_str(json_str).unwrap();
+
+        // 处理解析后的请求
+        process_packet(request);
+    }
+
+    #[test]
+    fn test_process_packet_test_two() {
+        // 假设从网络上接收到的 JSON 字符串
+        let json_str = r#"{
+            "packet_type": "TestTwo",
+            "packet_payload": {"one": "Payload for TestTwo"}
+        }"#;
+
+        // 将 JSON 字符串解析为 PacketRequest 对象
+        let request: PacketRequest = serde_json::from_str(json_str).unwrap();
+
+        // 处理解析后的请求
+        process_packet(request);
+    }
+}

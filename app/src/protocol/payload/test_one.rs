@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
-use crate::protocol::payload::packet_payload::PacketPayload;
 
+// 定义 PayloadOne 结构体
 #[derive(Serialize, Deserialize, Debug, Default)]
-pub struct TestOne {
+pub struct PayloadOne {
     pub one: String,
 }
 
-impl From<TestOne> for PacketPayload {
-    fn from(t1: TestOne) -> Self {
-        PacketPayload::TestOne(t1)
-    }
+// 定义 PayloadTwo 结构体
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct PayloadTwo {
+    pub one: String,
 }
