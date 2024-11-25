@@ -9,7 +9,7 @@ use crate::protocol::payload::login::{LoginReq, LoginRes};
 pub struct LoginHandler;
 
 impl LoginHandler {
-    pub async fn process(login_req: LoginReq, connection: &mut ClientConnection) {
+    pub async fn process(_: LoginReq, connection: &mut ClientConnection) {
         // 设置认证成功
         connection.authentication = true;
         // 回写响应数据

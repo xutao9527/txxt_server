@@ -1,6 +1,5 @@
-use futures_util::SinkExt;
-use crate::protocol::connection::client_connection::ClientConnection;
 
+use crate::protocol::connection::client_connection::ClientConnection;
 use crate::protocol::definition::packet_request::PacketRequest;
 use crate::protocol::handler::login_handler::LoginHandler;
 use crate::protocol::handler::PacketType;
@@ -14,9 +13,8 @@ pub async fn process_packet(data: &[u8], connection: &mut ClientConnection) {
             // 根据 PacketType 执行不同的处理
             match packet.packet_type {
                 PacketType::Login => {
-                    if let PacketPayload::LoginReq(payload) = packet.packet_payload {
-                        LoginHandler::process(payload,connection).await;
-                    }
+                    let PacketPayload::LoginReq(payload) = packet.packet_payload;
+                    LoginHandler::process(payload, connection).await;
                 }
             }
         }

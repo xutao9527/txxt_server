@@ -1,5 +1,4 @@
-use bytes::Bytes;
-use futures_util::{SinkExt, StreamExt};
+use futures_util::{StreamExt};
 use snowflake::SnowflakeIdGenerator;
 use tokio::net::TcpListener;
 use tokio::net::TcpStream;
@@ -32,7 +31,7 @@ async fn handle_client(
     client_id: i64,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let (reader, writer) = stream.into_split();
-    let mut writer = FramedWrite::new(writer, LengthDelimitedCodec::new());
+    let writer = FramedWrite::new(writer, LengthDelimitedCodec::new());
     let mut reader = FramedRead::new(reader, LengthDelimitedCodec::new());
 
     let mut connection = ClientConnection {
@@ -51,9 +50,10 @@ async fn handle_client(
                 if !connection.authentication {
                     println!("Client {} failed to authenticate, disconnecting...", addr);
                     break;
-                } else {
-                    println!("Client {} success to authenticate, ...", addr);
                 }
+                // else {
+                //     println!("Client {} success to authenticate, ...", addr);
+                // }
             }
             Err(e) => return Err(e.into()),
         }
