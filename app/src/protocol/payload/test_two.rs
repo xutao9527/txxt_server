@@ -1,5 +1,6 @@
+use serde::{Deserialize, Serialize};
 
-
+#[derive(Serialize, Deserialize, Debug)]
 pub struct TestTwo{
-    pub one:String
+    pub two:String
 }
