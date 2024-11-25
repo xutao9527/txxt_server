@@ -1,9 +1,9 @@
-use serde::{Deserialize, Serialize};
-
-#[derive(Serialize, Deserialize, Debug, Eq, Hash, PartialEq)]
-pub enum PacketType {
-    TestOne,
-    TestTwo,
-}
-
+// use serde::{Deserialize, Serialize};
+//
+// #[derive(Serialize, Deserialize, Debug, Eq, Hash, PartialEq, Clone)]
+// pub enum PacketType {
+//     TestOne,
+//     TestTwo,
+// }
+//
 

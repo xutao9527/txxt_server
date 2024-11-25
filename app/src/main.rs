@@ -2,8 +2,6 @@ use futures_util::{SinkExt, StreamExt};
 use tokio::net::TcpListener;
 use tokio::net::TcpStream;
 use tokio_util::codec::{FramedRead, FramedWrite, LengthDelimitedCodec};
-pub mod entity;
-pub mod handler;
 pub mod protocol;
 
 #[tokio::main]
