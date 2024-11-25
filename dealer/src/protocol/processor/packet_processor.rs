@@ -1,11 +1,13 @@
+use futures_util::SinkExt;
+use crate::protocol::connection::client_connection::ClientConnection;
+
 use crate::protocol::definition::packet_request::PacketRequest;
 use crate::protocol::handler::login_handler::LoginHandler;
 use crate::protocol::handler::PacketType;
 use crate::protocol::payload::PacketPayload;
 
 
-
-pub async fn process_packet(data: &[u8]) {
+pub async fn process_packet(data: &[u8], connection: &mut ClientConnection) {
     let packet: Result<PacketRequest, serde_json::Error> = serde_json::from_slice(data);
     match packet {
         Ok(packet) => {
@@ -13,7 +15,7 @@ pub async fn process_packet(data: &[u8]) {
             match packet.packet_type {
                 PacketType::Login => {
                     if let PacketPayload::LoginReq(payload) = packet.packet_payload {
-                        LoginHandler::process(payload); // 调用 LoginHandler 处理
+                        LoginHandler::process(payload,connection).await;
                     }
                 }
             }
@@ -50,6 +52,4 @@ mod tests {
             .collect();
         println!("Encoded in hex: {}", hex_output);
     }
-
-
 }
