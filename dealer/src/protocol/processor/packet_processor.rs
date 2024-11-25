@@ -4,13 +4,22 @@ use crate::protocol::handler::PacketType;
 use crate::protocol::payload::PacketPayload;
 
 
-// 模拟处理不同类型的 payload
-fn process_packet(packet: PacketRequest) {
-    match packet.packet_type {
-        PacketType::Login => {
-            if let PacketPayload::LoginReq(payload) = packet.packet_payload {
-                LoginHandler::process(payload);
+
+pub async fn process_packet(data: &[u8]) {
+    let packet: Result<PacketRequest, serde_json::Error> = serde_json::from_slice(data);
+    match packet {
+        Ok(packet) => {
+            // 根据 PacketType 执行不同的处理
+            match packet.packet_type {
+                PacketType::Login => {
+                    if let PacketPayload::LoginReq(payload) = packet.packet_payload {
+                        LoginHandler::process(payload); // 调用 LoginHandler 处理
+                    }
+                }
             }
+        }
+        Err(e) => {
+            eprintln!("Failed to parse packet: {}", e);
         }
     }
 }
@@ -19,23 +28,21 @@ fn process_packet(packet: PacketRequest) {
 mod tests {
     use crate::protocol::payload::login::LoginReq;
     use super::*;
+
     #[test]
     fn test_process_packet() {
-        let login_req =  PacketRequest{
-            packet_type:PacketType::Login,
-            packet_payload:PacketPayload::LoginReq(LoginReq{
-                user_name:"test".to_string(),
-                pass_word:"test".to_string(),
-            })
+        let login_req = PacketRequest {
+            packet_type: PacketType::Login,
+            packet_payload: PacketPayload::LoginReq(LoginReq {
+                user_name: "test".to_string(),
+                pass_word: "test".to_string(),
+            }),
         };
 
         let login_str = serde_json::to_string(&login_req).unwrap();
-        println!("{}",login_str);
-
         let login_str = r#"{"packet_type":"Login","packet_payload":{"user_name":"test","pass_word":"test"}}"#;
-
-        let request: PacketRequest = serde_json::from_str(login_str).unwrap();
-        process_packet(request);
-
+        tokio::runtime::Runtime::new().unwrap().block_on(async {
+            process_packet(login_str.as_bytes()).await;
+        });
     }
 }

@@ -2,6 +2,7 @@ use futures_util::{SinkExt, StreamExt};
 use tokio::net::TcpListener;
 use tokio::net::TcpStream;
 use tokio_util::codec::{FramedRead, FramedWrite, LengthDelimitedCodec};
+use dealer::protocol::processor::packet_processor::process_packet;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -28,11 +29,12 @@ async fn handle_client(
     while let Some(data) = reader.next().await {
         match data {
             Ok(data) => {
-                let mut msg = String::from_utf8(data.to_vec())?;
-                println!("Received from {}: {}", addr, msg);
-                msg.push('a');
-                println!("Send data to {}: {}", addr, msg);
-                writer.send("msga".into()).await?;
+                process_packet(&data).await;
+                // let mut msg = String::from_utf8(data.to_vec())?;
+                // println!("Received from {}: {}", addr, msg);
+                // msg.push('a');
+                // println!("Send data to {}: {}", addr, msg);
+                // writer.send("msga".into()).await?;
             }
             Err(e) => return Err(e.into()),
         }
