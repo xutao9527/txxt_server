@@ -8,5 +8,8 @@ common = {path = "../common"}
 dbs = {path = "../dbs"}
 tokio = { workspace = true, features = ["full"] }
 tokio-util = { workspace = true }
+futures-util = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+
+[dev-dependencies]
