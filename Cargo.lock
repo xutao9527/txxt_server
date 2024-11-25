@@ -72,6 +72,7 @@ name = "app"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "dealer",
  "futures-util",
  "serde",
  "serde_json",
@@ -407,6 +408,8 @@ version = "0.1.0"
 dependencies = [
  "common",
  "dbs",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
