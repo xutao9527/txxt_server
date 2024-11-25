@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use serde_json::{self};
+
 use crate::protocol::definition::packet_payload::PacketPayload;
 use crate::protocol::definition::packet_type::PacketType;
 
