@@ -26,8 +26,13 @@ impl TableBoardDao {
             .try_into_model()
     }
 
-    pub async fn find_one(model: Model) -> Result<Option<Model>, DbErr> {
+    pub async fn find_by_id(model: Model) -> Result<Option<Model>, DbErr> {
         let result = Entity::find_by_id(model.id).one(Config::get_db()).await;
+        result
+    }
+
+    pub async fn find_one(condition: Condition) -> Result<Option<Model>, DbErr> {
+        let result = Entity::find().one(Config::get_db()).await;
         result
     }
 
