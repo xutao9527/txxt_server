@@ -1,102 +1,169 @@
-use std::io;
-
+// ANCHOR: all
+use std::{error::Error, io};
 
 use ratatui::{
-    buffer::Buffer,
-    layout::Rect,
-    style::Stylize,
-    symbols::border,
-    text::{Line, Text},
-    widgets::{Block, Paragraph, Widget},
-    DefaultTerminal, Frame,
+    backend::{Backend, CrosstermBackend},
+    crossterm::{
+        event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind},
+        execute,
+        terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+    },
+    Terminal,
 };
 
-fn main() -> io::Result<()> {
-    let mut terminal = ratatui::init();
-    let app_result = App::default().run(&mut terminal);
-    ratatui::restore();
-    app_result
-}
+mod app;
+mod ui;
+use crate::{
+    app::{App, CurrentScreen, CurrentlyEditing},
+    ui::ui,
+};
 
-#[derive(Debug, Default)]
-pub struct App {
-    counter: u8,
-    exit: bool,
-}
+// ANCHOR: main_all
+// ANCHOR: setup_boilerplate
+fn main() -> Result<(), Box<dyn Error>> {
+    // setup terminal
+    enable_raw_mode()?;
+    let mut stderr = io::stderr(); // This is a special case. Normally using stdout is fine
+    execute!(stderr, EnterAlternateScreen, EnableMouseCapture)?;
+    // ANCHOR_END: setup_boilerplate
+    // ANCHOR: application_startup
+    let backend = CrosstermBackend::new(stderr);
+    let mut terminal = Terminal::new(backend)?;
 
-impl App {
-    /// runs the application's main loop until the user quits
-    pub fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
-        while !self.exit {
-            terminal.draw(|frame| self.draw(frame))?;
-            self.handle_events()?;
+    // create app and run it
+    let mut app = App::new();
+    let res = run_app(&mut terminal, &mut app);
+    // ANCHOR_END: application_startup
+
+    // ANCHOR: ending_boilerplate
+    // restore terminal
+    disable_raw_mode()?;
+    execute!(
+        terminal.backend_mut(),
+        LeaveAlternateScreen,
+        DisableMouseCapture
+    )?;
+    terminal.show_cursor()?;
+    // ANCHOR_END: ending_boilerplate
+
+    // ANCHOR: final_print
+    if let Ok(do_print) = res {
+        if do_print {
+            app.print_json()?;
         }
-        Ok(())
+    } else if let Err(err) = res {
+        println!("{err:?}");
     }
 
-    fn draw(&self, frame: &mut Frame) {
-        frame.render_widget(self, frame.area());
-    }
+    Ok(())
+}
+// ANCHOR_END: final_print
+// ANCHOR_END: main_all
 
-    /// updates the application's state based on user input
-    fn handle_events(&mut self) -> io::Result<()> {
-        match event::read()? {
-            // it's important to check that the event is a key press event as
-            // crossterm also emits key release and repeat events on Windows.
-            Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
-                self.handle_key_event(key_event)
+// ANCHOR: run_app_all
+// ANCHOR: run_method_signature
+fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<bool> {
+    // ANCHOR_END: run_method_signature
+    // ANCHOR: ui_loop
+    loop {
+        terminal.draw(|f| ui(f, app))?;
+        // ANCHOR_END: ui_loop
+
+        // ANCHOR: event_poll
+        // ANCHOR: main_screen
+        if let Event::Key(key) = event::read()? {
+            if key.kind == event::KeyEventKind::Release {
+                // Skip events that are not KeyEventKind::Press
+                continue;
             }
-            _ => {}
-        };
-        Ok(())
-    }
-
-    fn handle_key_event(&mut self, key_event: KeyEvent) {
-        match key_event.code {
-            KeyCode::Char('q') => self.exit(),
-            KeyCode::Left => self.decrement_counter(),
-            KeyCode::Right => self.increment_counter(),
-            _ => {}
+            match app.current_screen {
+                CurrentScreen::Main => match key.code {
+                    KeyCode::Char('e') => {
+                        app.current_screen = CurrentScreen::Editing;
+                        app.currently_editing = Some(CurrentlyEditing::Key);
+                    }
+                    KeyCode::Char('q') => {
+                        app.current_screen = CurrentScreen::Exiting;
+                    }
+                    _ => {}
+                },
+                // ANCHOR_END: main_screen
+                // ANCHOR: exiting_screen
+                CurrentScreen::Exiting => match key.code {
+                    KeyCode::Char('y') => {
+                        return Ok(true);
+                    }
+                    KeyCode::Char('n') | KeyCode::Char('q') => {
+                        return Ok(false);
+                    }
+                    _ => {}
+                },
+                // ANCHOR_END: exiting_screen
+                // ANCHOR: editing_enter
+                CurrentScreen::Editing if key.kind == KeyEventKind::Press => {
+                    match key.code {
+                        KeyCode::Enter => {
+                            if let Some(editing) = &app.currently_editing {
+                                match editing {
+                                    CurrentlyEditing::Key => {
+                                        app.currently_editing = Some(CurrentlyEditing::Value);
+                                    }
+                                    CurrentlyEditing::Value => {
+                                        app.save_key_value();
+                                        app.current_screen = CurrentScreen::Main;
+                                    }
+                                }
+                            }
+                        }
+                        // ANCHOR_END: editing_enter
+                        // ANCHOR: backspace_editing
+                        KeyCode::Backspace => {
+                            if let Some(editing) = &app.currently_editing {
+                                match editing {
+                                    CurrentlyEditing::Key => {
+                                        app.key_input.pop();
+                                    }
+                                    CurrentlyEditing::Value => {
+                                        app.value_input.pop();
+                                    }
+                                }
+                            }
+                        }
+                        // ANCHOR_END: backspace_editing
+                        // ANCHOR: escape_editing
+                        KeyCode::Esc => {
+                            app.current_screen = CurrentScreen::Main;
+                            app.currently_editing = None;
+                        }
+                        // ANCHOR_END: escape_editing
+                        // ANCHOR: tab_editing
+                        KeyCode::Tab => {
+                            app.toggle_editing();
+                        }
+                        // ANCHOR_END: tab_editing
+                        // ANCHOR: character_editing
+                        KeyCode::Char(value) => {
+                            if let Some(editing) = &app.currently_editing {
+                                match editing {
+                                    CurrentlyEditing::Key => {
+                                        app.key_input.push(value);
+                                    }
+                                    CurrentlyEditing::Value => {
+                                        app.value_input.push(value);
+                                    }
+                                }
+                            }
+                        }
+                        // ANCHOR_END: character_editing
+                        _ => {}
+                    }
+                }
+                _ => {}
+            }
         }
-    }
-
-    fn exit(&mut self) {
-        self.exit = true;
-    }
-
-    fn increment_counter(&mut self) {
-        self.counter += 1;
-    }
-
-    fn decrement_counter(&mut self) {
-        self.counter -= 1;
+        // ANCHOR_END: event_poll
     }
 }
+// ANCHOR: run_app_all
 
-impl Widget for &App {
-    fn render(self, area: Rect, buf: &mut Buffer) {
-        let title = Line::from(" Counter App Tutorial ".bold());
-        let instructions = Line::from(vec![
-            " Decrement ".into(),
-            "<Left>".blue().bold(),
-            " Increment ".into(),
-            "<Right>".blue().bold(),
-            " Quit ".into(),
-            "<Q> ".blue().bold(),
-        ]);
-        let block = Block::bordered()
-            .title(title.centered())
-            .title_bottom(instructions.centered())
-            .border_set(border::THICK);
-
-        let counter_text = Text::from(vec![Line::from(vec![
-            "Value: ".into(),
-            self.counter.to_string().yellow(),
-        ])]);
-
-        Paragraph::new(counter_text)
-            .centered()
-            .block(block)
-            .render(area, buf);
-    }
-}
+// ANCHOR_END: all
