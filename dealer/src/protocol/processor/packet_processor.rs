@@ -1,10 +1,8 @@
-
 use crate::protocol::connection::client_connection::ClientConnection;
 use crate::protocol::definition::packet_request::PacketRequest;
 use crate::protocol::handler::login_handler::LoginHandler;
 use crate::protocol::handler::PacketType;
 use crate::protocol::payload::PacketPayload;
-
 
 pub async fn process_packet(data: &[u8], connection: &mut ClientConnection) {
     let packet: Result<PacketRequest, serde_json::Error> = serde_json::from_slice(data);
