@@ -1,9 +1,11 @@
 use common::global::Config;
 use sea_orm::*;
+use sea_orm::sea_query::IntoCondition;
 use sqlx::types::chrono::Utc;
 use crate::model::table_board::{Entity, Model};
 
 pub struct TableBoardDao;
+
 impl TableBoardDao {
     pub async fn insert(model: Model) -> Result<Model, DbErr> {
         let mut active_model = model.into_active_model();
@@ -31,13 +33,17 @@ impl TableBoardDao {
         result
     }
 
-    pub async fn find_one(condition: Condition) -> Result<Option<Model>, DbErr> {
-        let result = Entity::find().one(Config::get_db()).await;
+    pub async fn find_one<F>(filter: F) -> Result<Option<Model>, DbErr>
+        where F: IntoCondition,
+    {
+        let result = Entity::find().filter(filter).one(Config::get_db()).await;
         result
     }
 
-    pub async fn find_list(condition: Condition) -> Result<Vec<Model>, DbErr> {
-        let list = Entity::find().filter(condition).all(Config::get_db()).await;
+    pub async fn find_list<F>(filter: F) -> Result<Vec<Model>, DbErr>
+        where F: IntoCondition,
+    {
+        let list = Entity::find().filter(filter).all(Config::get_db()).await;
         list
     }
 

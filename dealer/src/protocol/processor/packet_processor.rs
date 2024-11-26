@@ -37,8 +37,8 @@ mod tests {
         let login_req = PacketRequest {
             packet_type: PacketType::Login,
             packet_payload: PacketPayload::LoginReq(LoginReq {
-                user_name: "test".to_string(),
-                pass_word: "test".to_string(),
+                user_name: "101".to_string(),
+                pass_word: "7735a36e802561ef44249c039c8db410".to_string(),
             }),
         };
         let login_req_str = serde_json::to_string(&login_req).unwrap().to_string();

@@ -11,4 +11,7 @@ futures-util = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 dealer = { path = "../dealer" }
-rs-snowflake = "0.6.0"
+common = { path = "../common" }
+
+rs-snowflake = { workspace = true }
+dotenv = { workspace = true }

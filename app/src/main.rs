@@ -8,6 +8,8 @@ use dealer::protocol::processor::packet_processor::process_packet;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    dotenv::dotenv().ok();
+    common::global::Config::initialize().await;
     let listener = TcpListener::bind("127.0.0.1:8080").await?;
     println!("Server running on 127.0.0.1:8080");
     loop {
@@ -61,36 +63,3 @@ async fn handle_client(
     println!("Client {} disconnected", addr);
     Ok(())
 }
-
-#[cfg(test)]
-mod tests {
-    use std::collections::HashSet;
-    use std::time::Instant;
-    use snowflake::SnowflakeIdGenerator;
-
-    #[test]
-    fn test_snowflake() {
-        let mut id_generator = SnowflakeIdGenerator::new(1, 1); // 初始化 Snowflake ID 生成器
-        let start_time = Instant::now();
-        let mut count = 0;
-        // 用于存储生成的 ID
-        let mut generated_ids = Vec::with_capacity(100000000);
-        // 生成 ID，不进行实时去重检查
-        while start_time.elapsed().as_secs() < 2 {
-            let id = id_generator.lazy_generate(); // 生成 ID
-            generated_ids.push(id); // 将 ID 添加到数组中
-            count += 1;
-        }
-        // 输出生成的 ID 数量
-        println!("Generated {} IDs in 2 seconds", count);
-        // 后期去重检查：将所有生成的 ID 插入到 HashSet 中
-        let unique_ids: HashSet<_> = generated_ids.into_iter().collect();
-        let total_unique_ids = unique_ids.len();
-        if total_unique_ids < count {
-            println!("Duplicate IDs found. {} duplicates detected.", count - total_unique_ids);
-        } else {
-            println!("No duplicates found.");
-        }
-    }
-}
-
