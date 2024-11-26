@@ -9,7 +9,7 @@ where
     let schema = Schema::new(db_backend);
     let mut statement = schema.create_table_from_entity(entity);
     statement.if_not_exists();
-    //println!("{}", db_backend.build(&statement));
+    println!("{}", db_backend.build(&statement));
     let result = Config::global()
         .db
         .as_ref()
