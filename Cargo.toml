@@ -1,5 +1,5 @@
 [workspace]
-members = ["common", "app", "dealer", "dbs"]
+members = ["common", "app", "dealer", "dbs", "dealer-cli"]
 resolver = "2"
 
 [workspace.dependencies]
@@ -15,5 +15,5 @@ url = "2.5.3"
 dotenv = "0.15.0"
 serde = { version = "1.0.214", features = ["derive"] }
 serde_json = { version = "1.0.132" }
-md5 = {version = "0.7.0"}
+md5 = { version = "0.7.0" }
 rs-snowflake = "0.6.0"
