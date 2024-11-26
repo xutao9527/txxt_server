@@ -8,9 +8,8 @@ pub struct Model {
     pub id: i32,
     #[sea_orm(unique)]
     pub table_no: Option<String>,
-    pub username: Option<String>,
     pub password: Option<String>,
-    pub status: Option<bool>,
+    pub status: bool,
     pub created_at: Option<DateTimeUtc>,
     pub updated_at: Option<DateTimeUtc>,
 }

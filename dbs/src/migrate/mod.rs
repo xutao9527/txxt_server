@@ -1,6 +1,8 @@
 pub mod migrate;
+
 use crate::model::table_board;
 use sea_orm::{DatabaseBackend, IntoActiveModel};
+use sea_orm::sqlx::types::chrono::Utc;
 
 pub async fn start_migrate(db_backend: DatabaseBackend) {
     migrate_table_board(db_backend).await;
@@ -13,16 +15,28 @@ pub async fn migrate_table_board(db_backend: DatabaseBackend) {
                 table_board::Model {
                     id: 1,
                     table_no: Some("101".to_string()),
+                    password: Some(format!("{:x}", md5::compute("bjl9527"))),
+                    status: true,
+                    created_at:Some(Utc::now()),
+                    updated_at:Some(Utc::now()),
                     ..Default::default()
                 },
                 table_board::Model {
                     id: 2,
                     table_no: Some("102".to_string()),
+                    password: Some(format!("{:x}", md5::compute("bjl9527"))),
+                    status: true,
+                    created_at:Some(Utc::now()),
+                    updated_at:Some(Utc::now()),
                     ..Default::default()
                 },
                 table_board::Model {
                     id: 3,
                     table_no: Some("103".to_string()),
+                    password: Some(format!("{:x}", md5::compute("bjl9527"))),
+                    status: true,
+                    created_at:Some(Utc::now()),
+                    updated_at:Some(Utc::now()),
                     ..Default::default()
                 },
             ]

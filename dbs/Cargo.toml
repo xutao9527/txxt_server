@@ -8,4 +8,5 @@ tokio = { workspace = true , features = ["full"]}
 dotenv = { workspace = true }
 sea-orm = { workspace = true }
 serde = { workspace = true }
+md5 = { workspace = true }
 common = {path = "../common"}
