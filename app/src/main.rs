@@ -15,7 +15,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     loop {
         let (stream, addr) = listener.accept().await?;
         println!("New connection from: {}", addr);
-
         let mut id_generator = SnowflakeIdGenerator::new(1, 1);
         tokio::spawn(async move {
             id_generator.lazy_generate();
