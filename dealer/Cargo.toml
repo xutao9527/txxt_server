@@ -4,9 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-#common = { path = "../common" }
-#dbs = { path = "../dbs" }
-
+common = { path = "../common" }
+dbs = { path = "../dbs" }
 sea-orm = { workspace = true }
 bytes = { workspace = true }
 tokio = { workspace = true, features = ["full"] }

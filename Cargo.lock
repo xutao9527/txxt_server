@@ -464,6 +464,8 @@ name = "dealer"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "common",
+ "dbs",
  "futures-util",
  "sea-orm",
  "serde",
