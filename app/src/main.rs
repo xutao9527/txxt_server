@@ -1,4 +1,4 @@
-use futures_util::{StreamExt};
+use futures_util::StreamExt;
 use snowflake::SnowflakeIdGenerator;
 use tokio::net::TcpListener;
 use tokio::net::TcpStream;

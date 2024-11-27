@@ -4,6 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+common = { path = "../common" }
+dealer = { path = "../dealer" }
+bytes = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tokio-util = { workspace = true }
+futures-util = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
 ratatui = { version = "0.29.0", features = ["all-widgets"] }
-serde = { version = "1.0.214", features = ["derive"] }
-serde_json = { version = "1.0.132" }

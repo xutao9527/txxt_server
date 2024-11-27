@@ -42,7 +42,7 @@ mod tests {
         let login_req_str = serde_json::to_string(&login_req).unwrap().to_string();
         let mut buf = BytesMut::new();
         let mut codec = LengthDelimitedCodec::new();
-        codec.encode(login_req_str.into(), &mut buf);
+        let _ = codec.encode(login_req_str.into(), &mut buf);;
         let hex_output: String = buf.iter()
             .map(|byte| format!("{:02x}", byte))
             .collect();

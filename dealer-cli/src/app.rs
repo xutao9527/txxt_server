@@ -1,17 +1,12 @@
 use ratatui::{
-    buffer::Buffer,
     crossterm::event::{self, Event, KeyCode, KeyEventKind},
-    layout::{Constraint, Layout, Rect},
-    widgets::{Block, Widget},
+    layout::{Constraint, Layout},
+    widgets::Block,
     DefaultTerminal, Frame,
 };
 
 pub struct App {
     should_exit: bool,
-}
-
-impl Widget for &App {
-    fn render(self, area: Rect, buf: &mut Buffer) {}
 }
 
 impl App {
@@ -42,5 +37,19 @@ impl App {
                 self.should_exit = true;
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::App;
+
+   
+
+    #[test]
+    fn test_terminal() {
+        let terminal = ratatui::init();
+        App::new().run(terminal);
+        ratatui::restore();
     }
 }

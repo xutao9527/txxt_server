@@ -514,9 +514,15 @@ dependencies = [
 name = "dealer-cli"
 version = "0.1.0"
 dependencies = [
+ "bytes",
+ "common",
+ "dealer",
+ "futures-util",
  "ratatui",
  "serde",
  "serde_json",
+ "tokio",
+ "tokio-util",
 ]
 
 [[package]]
