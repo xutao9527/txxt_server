@@ -21,7 +21,6 @@ impl App {
                 break;
             }
         }
-        ratatui::restore();
     }
 
     fn draw(&self, frame: &mut Frame) {
