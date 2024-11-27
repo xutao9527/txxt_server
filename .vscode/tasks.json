@@ -1,18 +1,21 @@
 {
 	"version": "2.0.0",
 	"tasks": [
-		// {
-		// 	"type": "cargo",
-		// 	"command": "build",
-		// 	"problemMatcher": [
-		// 		"$rustc"
-		// 	],
-		// 	"group": "build",
-		// 	"label": "cargo build",
-		// 	"presentation": {
-		// 		"reveal": "silent",
-		// 		"panel": "shared"
-		// 	}
-		// }
+		{
+			"type": "cargo",
+			"command": "build",
+			"problemMatcher": [
+				"$rustc"
+			],
+			"group": "build",
+			"label": "cargo build dealer-cli",
+			"presentation": {
+				"reveal": "silent",
+				"panel": "shared"
+			},
+			"options": {
+				"cwd": "${workspaceFolder}/dealer-cli"
+			}
+		}
 	]
 }

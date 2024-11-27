@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "run dealer-cli",
             "cwd": "${workspaceFolder}",
-            // "preLaunchTask": "cargo build",
+            "preLaunchTask": "cargo build dealer-cli",
             "program": "${workspaceFolder}/target/debug/dealer-cli.exe",
             "args": [ ],
             "externalConsole": true
