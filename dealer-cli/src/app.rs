@@ -1,29 +1,46 @@
 use ratatui::{
-    crossterm::event::{self, Event},
-    text::Text,
+    buffer::Buffer,
+    crossterm::event::{self, Event, KeyCode, KeyEventKind},
+    layout::{Constraint, Layout, Rect},
+    widgets::{Block, Widget},
     DefaultTerminal, Frame,
 };
 
-pub struct App {}
+pub struct App {
+    should_exit: bool,
+}
+
+impl Widget for &App {
+    fn render(self, area: Rect, buf: &mut Buffer) {}
+}
 
 impl App {
     pub fn new() -> Self {
-        Self {}
+        Self { should_exit: false }
     }
 
-    pub fn run(self, mut terminal: DefaultTerminal) {
-        loop {
+    pub fn run(mut self, mut terminal: DefaultTerminal) {
+        while !self.should_exit {
             terminal
                 .draw(|frame| self.draw(frame))
                 .expect("Failed to draw");
-
-            if matches!(event::read().expect("failed to read event"), Event::Key(_)) {
-                break;
-            }
+            self.handle_events();
         }
     }
 
     fn draw(&self, frame: &mut Frame) {
-        frame.render_widget(Text::raw("Hello World!"), frame.area())
+        let [left, right] = Layout::horizontal([Constraint::Fill(1); 2]).areas(frame.area());
+        let [top_right, bottom_right] = Layout::vertical([Constraint::Fill(1); 2]).areas(right);
+        frame.render_widget(Block::bordered().title("Left Block"), left);
+        frame.render_widget(Block::bordered().title("Top Right Block"), top_right);
+        frame.render_widget(Block::bordered().title("Bottom Right Block"), bottom_right);
+    }
+
+    fn handle_events(&mut self) {
+        if let Event::Key(key) = event::read().expect("failed to read event") {
+            if key.kind == KeyEventKind::Press && key.code == KeyCode::Char('q') {
+                self.should_exit = true;
+            }
+        }
     }
 }
