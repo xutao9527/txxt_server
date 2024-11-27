@@ -1,7 +1,8 @@
 use ratatui::{
     crossterm::event::{self, Event, KeyCode, KeyEventKind},
     layout::{Constraint, Layout},
-    widgets::Block,
+    text::Text,
+    widgets::{Block, Borders, Paragraph},
     DefaultTerminal, Frame,
 };
 
@@ -24,11 +25,32 @@ impl App {
     }
 
     fn draw(&self, frame: &mut Frame) {
-        let [left, right] = Layout::horizontal([Constraint::Fill(1); 2]).areas(frame.area());
-        let [top_right, bottom_right] = Layout::vertical([Constraint::Fill(1); 2]).areas(right);
-        frame.render_widget(Block::bordered().title("Left Block"), left);
-        frame.render_widget(Block::bordered().title("Top Right Block"), top_right);
-        frame.render_widget(Block::bordered().title("Bottom Right Block"), bottom_right);
+        let [info, data, log, status] = Layout::vertical([
+            Constraint::Length(3),
+            Constraint::Length(3),
+            Constraint::Fill(1),
+            Constraint::Length(3),
+        ])
+        .areas(frame.area());
+
+       
+        let info_block = Block::bordered().borders(Borders::TOP | Borders::LEFT | Borders::RIGHT);
+
+        // let info_block = Paragraph::new(Text::raw("info_block")).block(info_block);
+
+        let data_block = Block::bordered().borders(Borders::TOP | Borders::LEFT | Borders::RIGHT);
+        // let data_block = Paragraph::new(Text::raw("data_block")).block(data_block);
+
+        let log_block = Block::bordered().borders(Borders::TOP | Borders::LEFT | Borders::RIGHT);
+        // let log_block = Paragraph::new(Text::raw("log_block")).block(log_block);
+
+        let status_block = Block::bordered();
+        // let status_block = Paragraph::new(Text::raw("status_block")).block(status_block);
+
+        frame.render_widget(info_block, info);
+        frame.render_widget(data_block, data);
+        frame.render_widget(log_block, log);
+        frame.render_widget(status_block, status);
     }
 
     fn handle_events(&mut self) {
@@ -43,9 +65,6 @@ impl App {
 #[cfg(test)]
 mod tests {
     use super::App;
-
-   
-
     #[test]
     fn test_terminal() {
         let terminal = ratatui::init();
