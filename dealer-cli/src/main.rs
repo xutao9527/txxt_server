@@ -5,8 +5,8 @@ mod app;
 mod widget;
 mod log;
 
-#[tokio::main]
-async fn main() {
+// #[tokio::main]
+fn main() {
     // let mut client = DealerClient::new("127.0.0.1:8080".to_string());
     // client.open().await?;
     // let login_req = PacketRequest {
@@ -21,9 +21,27 @@ async fn main() {
     // client.close().await;
     // Ok(())
     SLog::init(1000);
-    SLog::log("1".to_string());
-    SLog::log("2".to_string());
-    SLog::log("3".to_string());
+    SLog::err("1".to_string());
+    SLog::info("2".to_string());
+    SLog::info("3".to_string());
+    SLog::err("1".to_string());
+    SLog::info("2".to_string());
+    SLog::info("3".to_string());
+    SLog::err("1".to_string());
+    SLog::info("2".to_string());
+    SLog::info("3".to_string());
+    SLog::err("1".to_string());
+    SLog::info("2".to_string());
+    SLog::info("3".to_string());
+    SLog::err("1".to_string());
+    SLog::info("2".to_string());
+    SLog::info("3".to_string());
+
+
+    let logs= SLog::get(3);
+    print!("{:?}",logs);
+    print!("{:?}",logs);
+
     let terminal = ratatui::init();
     App::new().run(terminal);
     ratatui::restore();

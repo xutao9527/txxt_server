@@ -23,13 +23,13 @@ impl<T> CircularBuf<T> {
         buf.push_back(value);
     }
 
-    pub fn get_all(&self) -> Vec<T>
-    where
-        T: Clone,
-    {
-        let buf = self.buf.read().unwrap();
-        buf.clone().into()
-    }
+    // pub fn get_all(&self) -> Vec<T>
+    // where
+    //     T: Clone,
+    // {
+    //     let buf = self.buf.read().unwrap();
+    //     buf.clone().into()
+    // }
 
     pub fn get(&self, size: usize) -> Vec<T>
     where
