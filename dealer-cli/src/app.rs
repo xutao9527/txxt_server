@@ -1,3 +1,5 @@
+use std::{rc::Rc, sync::Arc};
+
 use ratatui::{
     crossterm::event::{self, Event, KeyCode, KeyEventKind},
     layout::{Constraint, Layout},
@@ -5,16 +7,25 @@ use ratatui::{
 };
 
 use crate::widget::{
-    control_widget::ControlWidget, info_widget::InfoWidget, log_widget::LogWidget, state_widget::StateWidget, view_widget::ViewWidget
+    control_widget::ControlWidget, info_widget::InfoWidget, log_widget::LogWidget,
+    state_widget::StateWidget, view_widget::ViewWidget,
 };
 
 pub struct App {
     should_exit: bool,
+    log_widget: LogWidget,
+    x: u32,
+    y: u128,
 }
 
 impl App {
     pub fn new() -> Self {
-        Self { should_exit: false }
+        Self {
+            should_exit: false,
+            log_widget: LogWidget::default(),
+            x: 0,
+            y: 0,
+        }
     }
 
     pub fn run(mut self, mut terminal: DefaultTerminal) {
@@ -34,7 +45,6 @@ impl App {
             Constraint::Length(3),
             Constraint::Length(9),
             Constraint::Fill(1),
-           // Constraint::Length(6),
             Constraint::Length(3),
         ])
         .areas(frame_view);
@@ -43,7 +53,7 @@ impl App {
         frame.render_widget(InfoWidget {}, info);
         frame.render_widget(ViewWidget {}, game_view);
         frame.render_widget(ControlWidget {}, game_control);
-        frame.render_widget(LogWidget::default(), log);
+        frame.render_widget(&self.log_widget, log);
         frame.render_widget(StateWidget {}, state);
     }
 
