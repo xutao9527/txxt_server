@@ -1,7 +1,8 @@
 use app::App;
 
 mod app;
-// mod dealer_client;
+mod widget;
+mod log;
 
 #[tokio::main]
 async fn main() {

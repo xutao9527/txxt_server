@@ -1,9 +1,11 @@
 use ratatui::{
     crossterm::event::{self, Event, KeyCode, KeyEventKind},
     layout::{Constraint, Layout},
-    text::Text,
-    widgets::{Block, Borders, Paragraph},
     DefaultTerminal, Frame,
+};
+
+use crate::widget::{
+    control_widget::ControlWidget, info_widget::InfoWidget, log_widget::LogWidget, state_widget::StateWidget, view_widget::ViewWidget
 };
 
 pub struct App {
@@ -25,32 +27,23 @@ impl App {
     }
 
     fn draw(&self, frame: &mut Frame) {
-        let [info, data, log, status] = Layout::vertical([
+        let [frame_view, _] =
+            Layout::horizontal([Constraint::Fill(1), Constraint::Length(1)]).areas(frame.area());
+
+        let [info, game, log, state] = Layout::vertical([
             Constraint::Length(3),
-            Constraint::Length(3),
+            Constraint::Length(9),
             Constraint::Fill(1),
             Constraint::Length(3),
         ])
-        .areas(frame.area());
-
-       
-        let info_block = Block::bordered().borders(Borders::TOP | Borders::LEFT | Borders::RIGHT);
-
-        // let info_block = Paragraph::new(Text::raw("info_block")).block(info_block);
-
-        let data_block = Block::bordered().borders(Borders::TOP | Borders::LEFT | Borders::RIGHT);
-        // let data_block = Paragraph::new(Text::raw("data_block")).block(data_block);
-
-        let log_block = Block::bordered().borders(Borders::TOP | Borders::LEFT | Borders::RIGHT);
-        // let log_block = Paragraph::new(Text::raw("log_block")).block(log_block);
-
-        let status_block = Block::bordered();
-        // let status_block = Paragraph::new(Text::raw("status_block")).block(status_block);
-
-        frame.render_widget(info_block, info);
-        frame.render_widget(data_block, data);
-        frame.render_widget(log_block, log);
-        frame.render_widget(status_block, status);
+        .areas(frame_view);
+        let [game_view, game_control] =
+            Layout::horizontal([Constraint::Fill(1), Constraint::Length(18)]).areas(game);
+        frame.render_widget(InfoWidget {}, info);
+        frame.render_widget(ViewWidget {}, game_view);
+        frame.render_widget(ControlWidget {}, game_control);
+        frame.render_widget(LogWidget {}, log);
+        frame.render_widget(StateWidget {}, state);
     }
 
     fn handle_events(&mut self) {
@@ -59,16 +52,5 @@ impl App {
                 self.should_exit = true;
             }
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::App;
-    #[test]
-    fn test_terminal() {
-        let terminal = ratatui::init();
-        App::new().run(terminal);
-        ratatui::restore();
     }
 }
