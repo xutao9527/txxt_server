@@ -24,11 +24,11 @@ impl Widget for LogWidget {
                 LogType::ERROR => Line::from(log.log_content.red()),
             })
             .collect::<Vec<_>>();
-
+        
         let paragraph = Paragraph::new(logs_view)
             .gray()
             .block(Block::bordered().borders(Borders::ALL));
-        //.scroll((line_scroll, 0));
+     
         paragraph.render(area, buf);
     }
 }

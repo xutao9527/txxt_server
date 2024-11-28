@@ -1,10 +1,10 @@
-use bytes::Bytes;
-use futures_util::SinkExt;
-use sea_orm::{ColumnTrait, Condition, DbErr};
-use dbs::dao::TableBoardDao;
-use dbs::model::table_board;
 use crate::protocol::connection::client_connection::ClientConnection;
 use crate::protocol::payload::login::{LoginReq, LoginRes};
+use bytes::Bytes;
+use dbs::dao::TableBoardDao;
+use dbs::model::table_board;
+use futures_util::SinkExt;
+use sea_orm::{ColumnTrait, Condition};
 
 // 定义 PayloadOneHandler 处理器
 pub struct LoginHandler;
@@ -17,18 +17,22 @@ impl LoginHandler {
         match TableBoardDao::find_one(condition).await {
             Ok(Some(_)) => {
                 connection.authentication = true;
-                let _ = connection.writer.send(
-                    Bytes::from(serde_json::to_string(&LoginRes { result: true }).unwrap())
-                ).await;
+                let _ = connection
+                    .writer
+                    .send(Bytes::from(
+                        serde_json::to_string(&LoginRes { result: true }).unwrap(),
+                    ))
+                    .await;
             }
             Ok(_) => {
-                let _ = connection.writer.send(
-                    Bytes::from(serde_json::to_string(&LoginRes { result: false }).unwrap())
-                ).await;
+                let _ = connection
+                    .writer
+                    .send(Bytes::from(
+                        serde_json::to_string(&LoginRes { result: false }).unwrap(),
+                    ))
+                    .await;
             }
-            Err(_) => {
-
-            }
+            Err(_) => {}
         }
     }
 }

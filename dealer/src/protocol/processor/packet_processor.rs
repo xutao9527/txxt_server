@@ -24,10 +24,10 @@ pub async fn process_packet(data: &[u8], connection: &mut ClientConnection) {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use crate::protocol::payload::login::LoginReq;
     use tokio_util::bytes::BytesMut;
     use tokio_util::codec::{Encoder, LengthDelimitedCodec};
-    use crate::protocol::payload::login::LoginReq;
-    use super::*;
 
     #[test]
     fn test_process_packet() {
@@ -42,10 +42,8 @@ mod tests {
         let login_req_str = serde_json::to_string(&login_req).unwrap().to_string();
         let mut buf = BytesMut::new();
         let mut codec = LengthDelimitedCodec::new();
-        let _ = codec.encode(login_req_str.into(), &mut buf);;
-        let hex_output: String = buf.iter()
-            .map(|byte| format!("{:02x}", byte))
-            .collect();
+        let _ = codec.encode(login_req_str.into(), &mut buf);
+        let hex_output: String = buf.iter().map(|byte| format!("{:02x}", byte)).collect();
         println!("Encoded in hex: {}", hex_output);
     }
 }
