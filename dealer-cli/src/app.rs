@@ -1,5 +1,3 @@
-use std::{rc::Rc, sync::Arc};
-
 use ratatui::{
     crossterm::event::{self, Event, KeyCode, KeyEventKind},
     layout::{Constraint, Layout},
