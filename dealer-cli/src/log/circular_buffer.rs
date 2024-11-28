@@ -1,8 +1,8 @@
-use std::collections::VecDeque;
+use std::{collections::VecDeque, sync::RwLock};
 
 #[derive(Debug)]
-struct CircularBuf<T> {
-    buf: VecDeque<T>,
+pub struct CircularBuf<T> {
+    buf: RwLock<VecDeque<T>>,
     capacity: usize,
 }
 
@@ -10,51 +10,38 @@ impl<T> CircularBuf<T> {
     pub fn new(capacity: usize) -> Self {
         assert!(capacity > 0, "Capacity must be greater than 0");
         CircularBuf {
-            buf: VecDeque::with_capacity(capacity),
+            buf: RwLock::new(VecDeque::with_capacity(capacity)),
             capacity,
         }
     }
 
-    pub fn push(&mut self, value: T) {
-        if self.buf.len() == self.capacity {
-            // 如果队列已满，移除最旧的元素
-            self.buf.pop_front();
+    pub fn push(&self, value: T) {
+        let mut buf = self.buf.write().unwrap();
+        if buf.len() == self.capacity {
+            buf.pop_front();
         }
-        // 将新元素推入队列
-        self.buf.push_back(value);
+        buf.push_back(value);
     }
 
-    pub fn get_all(&self) -> Vec<&T> {
-        self.buf.iter().collect()
+    pub fn get_all(&self) -> Vec<T>
+    where
+        T: Clone,
+    {
+        let buf = self.buf.read().unwrap();
+        buf.clone().into()
     }
 
-    pub fn get(&self, size: usize) -> Vec<&T> {
-        let start = if self.buf.len() < size {
+    pub fn get(&self, size: usize) -> Vec<T>
+    where
+        T: Clone,
+    {
+        let buf = self.buf.read().unwrap();
+        let start = if buf.len() < size {
             0
         } else {
-            self.buf.len() - size
+            buf.len() - size
         };
 
-        self.buf.iter().skip(start).collect()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::log::circular_buffer::CircularBuf;
-    #[test]
-    fn test_circular_buffer() {
-        let mut buffer = CircularBuf::<i32>::new(5);
-        buffer.push(1);
-        buffer.push(2);
-        buffer.push(3);
-        println!("{:?}", buffer.get_all()); // 输出: [1, 2, 3]
-
-        buffer.push(4);
-        println!("{:?}", buffer.get_all()); // 输出: [2, 3, 4]
-        
-        buffer.push(5);
-        println!("{:?}", buffer.get_all()); // 输出: [3, 4, 5]
-        println!("{:?}", buffer.get(4)); // 输出: [3, 4, 5]
+        buf.iter().skip(start).cloned().collect()
     }
 }

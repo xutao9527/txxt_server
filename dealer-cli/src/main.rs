@@ -1,4 +1,5 @@
 use app::App;
+use log::log::SLog;
 
 mod app;
 mod widget;
@@ -19,6 +20,10 @@ async fn main() {
     // client.receive().await;
     // client.close().await;
     // Ok(())
+    SLog::init(1000);
+    SLog::log("1".to_string());
+    SLog::log("2".to_string());
+    SLog::log("3".to_string());
     let terminal = ratatui::init();
     App::new().run(terminal);
     ratatui::restore();
