@@ -34,6 +34,7 @@ impl App {
             Constraint::Length(3),
             Constraint::Length(9),
             Constraint::Fill(1),
+           // Constraint::Length(6),
             Constraint::Length(3),
         ])
         .areas(frame_view);
@@ -42,7 +43,7 @@ impl App {
         frame.render_widget(InfoWidget {}, info);
         frame.render_widget(ViewWidget {}, game_view);
         frame.render_widget(ControlWidget {}, game_control);
-        frame.render_widget(LogWidget {}, log);
+        frame.render_widget(LogWidget::default(), log);
         frame.render_widget(StateWidget {}, state);
     }
 
