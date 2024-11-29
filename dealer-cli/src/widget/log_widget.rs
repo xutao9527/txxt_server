@@ -1,3 +1,5 @@
+use std::sync::{Arc, RwLock, Weak};
+
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
@@ -6,11 +8,21 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph, Widget},
 };
 
-use crate::log::log::{LogMsg, LogType, SLog};
+use crate::{
+    app::app_data::AppData,
+    log::log::{LogMsg, LogType, SLog},
+};
 
-#[derive(Default)]
 pub struct LogWidget {
-    // pub app: Weak<Mutex<App>>,
+    app_data: Weak<RwLock<AppData>>,
+}
+
+impl Default for LogWidget {
+    fn default() -> Self {
+        LogWidget {
+            app_data: Arc::downgrade(&AppData::singleton()),
+        }
+    }
 }
 
 impl Widget for &LogWidget {

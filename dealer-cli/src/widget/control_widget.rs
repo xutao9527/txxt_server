@@ -1,3 +1,5 @@
+use std::sync::{Arc, RwLock, Weak};
+
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
@@ -5,9 +7,21 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph, Widget},
 };
 
-pub struct ControlWidget {}
+use crate::app::app_data::AppData;
 
-impl Widget for ControlWidget {
+pub struct ControlWidget {
+    app_data: Weak<RwLock<AppData>>,
+}
+
+impl Default for ControlWidget {
+    fn default() -> Self {
+        ControlWidget {
+            app_data: Arc::downgrade(&AppData::singleton()),
+        }
+    }
+}
+
+impl Widget for &ControlWidget {
     fn render(self, area: Rect, buf: &mut Buffer)
     where
         Self: Sized,

@@ -18,7 +18,11 @@ use super::app_data::AppData;
 
 pub struct App {
     app_data: Weak<RwLock<AppData>>,
+    info_widget:InfoWidget,
+    view_widget:ViewWidget,
+    control_widget:ControlWidget,
     log_widget: LogWidget,
+    state_widget:StateWidget,
 }
 
 impl App {
@@ -26,7 +30,11 @@ impl App {
         SLog::init(log_cache);
         Self {
             app_data: Arc::downgrade(&AppData::singleton()),
+            info_widget:InfoWidget::default(),
+            view_widget:ViewWidget::default(),
+            control_widget:ControlWidget::default(),
             log_widget: LogWidget::default(),
+            state_widget:StateWidget::default(),
         }
     }
 
@@ -59,11 +67,11 @@ impl App {
         .areas(frame_view);
         let [game_view, game_control] =
             Layout::horizontal([Constraint::Fill(1), Constraint::Length(18)]).areas(game);
-        frame.render_widget(InfoWidget {}, info);
-        frame.render_widget(ViewWidget {}, game_view);
-        frame.render_widget(ControlWidget {}, game_control);
+        frame.render_widget(&self.info_widget, info);
+        frame.render_widget(&self.view_widget, game_view);
+        frame.render_widget(&self.control_widget, game_control);
         frame.render_widget(&self.log_widget, log);
-        frame.render_widget(StateWidget {}, state);
+        frame.render_widget(&self.state_widget, state);
     }
 
     fn handle_events(&mut self) {
