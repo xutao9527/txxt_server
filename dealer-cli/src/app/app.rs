@@ -60,13 +60,13 @@ impl App {
             Layout::horizontal([Constraint::Fill(1), Constraint::Length(1)]).areas(frame.area());
         let [info, game, log, state] = Layout::vertical([
             Constraint::Length(3),
-            Constraint::Length(20),
+            Constraint::Length(14),
             Constraint::Fill(1),
             Constraint::Length(3),
         ])
         .areas(frame_view);
         let [game_view, game_control] =
-            Layout::horizontal([Constraint::Fill(1), Constraint::Length(60)]).areas(game);
+            Layout::horizontal([Constraint::Fill(1), Constraint::Length(50)]).areas(game);
         frame.render_widget(&self.info_widget, info);
         frame.render_widget(&self.view_widget, game_view);
         frame.render_widget(&self.control_widget, game_control);

@@ -1,13 +1,16 @@
 use std::sync::{Arc, RwLock, Weak};
 
 use btn::Button;
+use futures_util::SinkExt;
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Layout, Rect},
-    widgets::Widget,
+    widgets::{Block, Borders, Widget},
 };
 
 use crate::app::app_data::AppData;
+
+use super::util::{self, widget_util};
 
 pub struct ControlWidget {
     app_data: Weak<RwLock<AppData>>,
@@ -54,6 +57,7 @@ impl Widget for &ControlWidget {
     where
         Self: Sized,
     {
+        let btn_layout = widget_util::center(area, Constraint::Length(48), Constraint::Length(12));
         let btn_layout = Layout::horizontal([
             Constraint::Length(12),
             Constraint::Length(12),
@@ -61,7 +65,7 @@ impl Widget for &ControlWidget {
             Constraint::Length(12),
             Constraint::Min(0),
         ])
-        .split(area)
+        .split(btn_layout)
         .iter()
         .map(|h_chunk| {
             Layout::vertical([
@@ -75,12 +79,13 @@ impl Widget for &ControlWidget {
             .to_vec()
         })
         .collect::<Vec<Vec<Rect>>>();
-
         for (i, row) in self.buttons.iter().enumerate() {
             for (j, chunk) in row.iter().enumerate() {
                 chunk.render(btn_layout[i][j], buf);
             }
         }
+
+        Block::bordered().borders(Borders::ALL).render(area, buf);
     }
 }
 
