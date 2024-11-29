@@ -1,7 +1,6 @@
 use std::sync::{Arc, RwLock, Weak};
 
 use btn::Button;
-use futures_util::SinkExt;
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Layout, Rect},
@@ -84,19 +83,20 @@ impl Widget for &ControlWidget {
                 chunk.render(btn_layout[i][j], buf);
             }
         }
-
         Block::bordered().borders(Borders::ALL).render(area, buf);
     }
 }
 
 mod btn {
     use ratatui::{
+        style::{Color, Style},
         text::Text,
         widgets::{Block, Borders, Paragraph, Widget},
     };
+
+    use crate::log::log::SLog;
     pub enum State {
         Normal,
-        Selected,
     }
 
     pub struct Button {
@@ -118,11 +118,16 @@ mod btn {
         where
             Self: Sized,
         {
-            let log_block = Block::bordered().borders(Borders::ALL);
-            let log_block = Paragraph::new(Text::raw(self.label.clone()))
-                .block(log_block)
+            let block = Block::bordered().borders(Borders::ALL);
+            let mut paragraph = Paragraph::new(Text::raw(self.label.clone()))
+                .block(block)
                 .alignment(ratatui::layout::Alignment::Center);
-            log_block.render(area, buf);
+
+            if self.label == "庄" {
+                paragraph = paragraph.style(Style::new().fg(Color::Green)); // 背景色只会影响文本区域
+                SLog::info("asdfasdf".into()); // 这里你可以在条件满足时做一些日志记录
+            }
+            paragraph.render(area, buf);
         }
     }
 }
