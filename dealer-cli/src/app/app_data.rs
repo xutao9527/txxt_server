@@ -1,4 +1,4 @@
-use std::sync::{Arc, OnceLock, RwLock, Weak};
+use std::sync::{Arc, OnceLock, RwLock};
 
 static APP_DATA: OnceLock<Arc<RwLock<AppData>>> = OnceLock::new();
 
