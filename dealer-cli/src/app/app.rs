@@ -22,7 +22,8 @@ pub struct App {
 }
 
 impl App {
-    pub fn new() -> Self {
+    pub fn new(log_cache: usize) -> Self {
+        SLog::init(log_cache);
         Self {
             app_data: Arc::downgrade(&AppData::singleton()),
             log_widget: LogWidget::default(),
