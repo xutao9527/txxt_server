@@ -1,5 +1,3 @@
-use std::sync::{Mutex, Weak};
-
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
@@ -8,14 +6,11 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph, Widget},
 };
 
-use crate::{
-    app::App,
-    log::log::{LogMsg, LogType, SLog},
-};
+use crate::log::log::{LogMsg, LogType, SLog};
 
 #[derive(Default)]
 pub struct LogWidget {
-    pub app: Weak<Mutex<App>>,
+    // pub app: Weak<Mutex<App>>,
 }
 
 impl Widget for &LogWidget {
@@ -31,11 +26,9 @@ impl Widget for &LogWidget {
                 LogType::ERROR => Line::from(log.log_content.red()),
             })
             .collect::<Vec<_>>();
-
         let paragraph = Paragraph::new(logs_view)
             .gray()
             .block(Block::bordered().borders(Borders::ALL));
-
         paragraph.render(area, buf);
     }
 }
