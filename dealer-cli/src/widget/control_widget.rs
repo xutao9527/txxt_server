@@ -1,7 +1,6 @@
 use std::sync::{Arc, RwLock, Weak};
 
 use btn::Button;
-use futures_util::SinkExt;
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Layout, Rect},
@@ -10,42 +9,44 @@ use ratatui::{
 
 use crate::app::app_data::AppData;
 
-use super::util::{self, widget_util};
+use super::util::widget_util;
 
 pub struct ControlWidget {
     app_data: Weak<RwLock<AppData>>,
     buttons: Vec<Vec<Button>>,
+    position: (u16, u16),
 }
 
 impl Default for ControlWidget {
     fn default() -> Self {
         let buttons = vec![
             vec![
-                Button::new("庄".into()),
-                Button::new("庄-庄对".into()),
-                Button::new("庄-闲对".into()),
-                Button::new("庄-庄闲对".into()),
+                Button::new("庄".into(), (0, 0)).select(),
+                Button::new("庄-庄对".into(), (0, 1)),
+                Button::new("庄-闲对".into(), (0, 2)),
+                Button::new("庄-庄闲对".into(), (0, 3)),
             ],
             vec![
-                Button::new("闲".into()),
-                Button::new("闲-庄对".into()),
-                Button::new("闲-闲对".into()),
-                Button::new("闲-庄闲对".into()),
+                Button::new("闲".into(), (1, 0)),
+                Button::new("闲-庄对".into(), (1, 1)),
+                Button::new("闲-闲对".into(), (1, 2)),
+                Button::new("闲-庄闲对".into(), (1, 3)),
             ],
             vec![
-                Button::new("和".into()),
-                Button::new("和-庄对".into()),
-                Button::new("和-闲对".into()),
-                Button::new("和-庄闲对".into()),
+                Button::new("和".into(), (2, 0)),
+                Button::new("和-庄对".into(), (2, 1)),
+                Button::new("和-闲对".into(), (2, 2)),
+                Button::new("和-庄闲对".into(), (2, 3)),
             ],
             vec![
-                Button::new("六".into()),
-                Button::new("六-庄对".into()),
-                Button::new("六-闲对".into()),
-                Button::new("六-庄闲对".into()),
+                Button::new("六".into(), (3, 0)),
+                Button::new("六-庄对".into(), (3, 1)),
+                Button::new("六-闲对".into(), (3, 2)),
+                Button::new("六-庄闲对".into(), (3, 3)),
             ],
         ];
         ControlWidget {
+            position: (0, 0),
             app_data: Arc::downgrade(&AppData::singleton()),
             buttons,
         }
@@ -84,16 +85,17 @@ impl Widget for &ControlWidget {
                 chunk.render(btn_layout[i][j], buf);
             }
         }
-
         Block::bordered().borders(Borders::ALL).render(area, buf);
     }
 }
 
 mod btn {
     use ratatui::{
+        style::{Color, Style},
         text::Text,
         widgets::{Block, Borders, Paragraph, Widget},
     };
+
     pub enum State {
         Normal,
         Selected,
@@ -102,14 +104,21 @@ mod btn {
     pub struct Button {
         label: String,
         state: State,
+        position: (u16, u16),
     }
 
     impl Button {
-        pub fn new(lable: String) -> Self {
+        pub fn new(lable: String, position: (u16, u16)) -> Self {
             Button {
                 label: lable,
                 state: State::Normal,
+                position,
             }
+        }
+
+        pub fn select(mut self) -> Self {
+            self.state = State::Selected;
+            self
         }
     }
 
@@ -118,11 +127,18 @@ mod btn {
         where
             Self: Sized,
         {
-            let log_block = Block::bordered().borders(Borders::ALL);
-            let log_block = Paragraph::new(Text::raw(self.label.clone()))
-                .block(log_block)
+            let block = Block::bordered().borders(Borders::ALL);
+            let mut paragraph = Paragraph::new(Text::raw(self.label.clone()))
+                .block(block)
                 .alignment(ratatui::layout::Alignment::Center);
-            log_block.render(area, buf);
+
+            match self.state {
+                State::Selected => {
+                    paragraph = paragraph.style(Style::new().fg(Color::Green)); // 背景色只会影响文本区域
+                }
+                _ => {}
+            }
+            paragraph.render(area, buf);
         }
     }
 }
