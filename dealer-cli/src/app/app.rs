@@ -14,7 +14,7 @@ use crate::{
     },
 };
 
-use super::app_data::{self, AppData};
+use super::app_data::AppData;
 
 pub struct App {
     app_data: Weak<RwLock<AppData>>,
