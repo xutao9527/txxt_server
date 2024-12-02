@@ -12,7 +12,7 @@ use ratatui::{
 
 use crate::{
     app::app_data::{AppData, ConnectState},
-    log::log::SLog,
+    log::log::SLog, net::business_api::login,
 };
 
 pub struct ConnectWidget {
@@ -45,18 +45,23 @@ impl ConnectWidget {
             }
             KeyCode::Enter => {
                 if let Some(data) = self.app_data.upgrade() {
-                    let data = &mut data.write().unwrap();
-                    data.connected = Option::from(self.position);
+                    let data: &mut std::sync::RwLockWriteGuard<'_, AppData> = &mut data.write().unwrap();
+
+                    //data.connected = Option::from(self.position);
+
+                    let connect_info = data.connects[self.position].clone();
+
                     match data.dealer_client.open() {
                         Ok(_) => {
-                            let login_req = PacketRequest {
-                                packet_type: PacketType::Login,
-                                packet_payload: PacketPayload::LoginReq(LoginReq {
-                                    user_name: data.connects[self.position].table_no.clone(),
-                                    pass_word: data.connects[self.position].password.clone(),
-                                }),
-                            };
-                            let _ = data.dealer_client.send(login_req);
+                            login(data,connect_info);
+                            // let login_req = PacketRequest {
+                            //     packet_type: PacketType::Login,
+                            //     packet_payload: PacketPayload::LoginReq(LoginReq {
+                            //         user_name: data.connects[self.position].table_no.clone(),
+                            //         pass_word: data.connects[self.position].password.clone(),
+                            //     }),
+                            // };
+                            // let _ = data.dealer_client.send(login_req);
                         },
                         Err(_) => {},
                     }

@@ -9,10 +9,13 @@ pub enum TerminalMode {
     Control,
 }
 
+#[derive(Clone)]
 pub enum ConnectState {
     Normal,
     Selected,
 }
+
+#[derive(Clone)]
 pub struct ConnectInfo {
     pub table_no: String,
     pub password: String,
