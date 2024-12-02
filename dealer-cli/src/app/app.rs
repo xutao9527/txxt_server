@@ -71,7 +71,7 @@ impl App {
             Layout::horizontal([Constraint::Fill(1), Constraint::Length(50)]).areas(v2);
 
         let [log_view, connect_view] =
-            Layout::horizontal([Constraint::Fill(1), Constraint::Length(27)]).areas(v3);
+            Layout::horizontal([Constraint::Fill(1), Constraint::Length(22)]).areas(v3);
 
         frame.render_widget(&self.info_widget, v1);
         frame.render_widget(&self.view_widget, game_view);
@@ -86,10 +86,26 @@ impl App {
             if key.kind == KeyEventKind::Press {
                 if let Some(app_data) = self.app_data.upgrade() {
                     let data = app_data.read().unwrap();
+                            
+                    match key.code {
+                        KeyCode::Char('s') => {
+                            SLog::info(format!("App input [{}]", key.code));
+                        },
+                        KeyCode::Char('c') => {
+                            SLog::info(format!("App input [{}]", key.code));
+                        },
+                        _ => {
+
+                        }
+                    }
+
                     match data.terminal_mode {
                         TerminalMode::Control => {
                             self.control_widget.handle_events(key.code);
                         },
+                        TerminalMode::Connect => {
+                            self.connect_widget.handle_events(key.code);
+                        }
                         _ => {},
                     }
                 }

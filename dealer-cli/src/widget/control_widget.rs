@@ -1,7 +1,6 @@
 use std::sync::{Arc, RwLock, Weak};
 
 use btn::Button;
-use futures_util::SinkExt;
 use ratatui::{
     buffer::Buffer,
     crossterm::event::KeyCode,

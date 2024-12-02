@@ -1,13 +1,28 @@
 use std::sync::{Arc, RwLock, Weak};
 
 use ratatui::{
-    buffer::Buffer, layout::Rect, style::{Color, Style, Stylize}, text::Line, widgets::{Block, Borders, Paragraph, Widget}
+    buffer::Buffer,
+    crossterm::event::KeyCode,
+    layout::Rect,
+    style::{Color, Style, Stylize},
+    text::Line,
+    widgets::{Block, Borders, Paragraph, Widget},
 };
 
 use crate::app::app_data::{AppData, ConnectState};
 
 pub struct ConnectWidget {
     app_data: Weak<RwLock<AppData>>,
+}
+
+impl ConnectWidget {
+    pub fn handle_events(&mut self, code: KeyCode) {
+        match code {
+            KeyCode::Up => {}
+            KeyCode::Down => {}
+            _ => {}
+        }
+    }
 }
 
 impl Default for ConnectWidget {
@@ -28,21 +43,12 @@ impl Widget for &ConnectWidget {
             let connects = &data.connects;
             let connects_view = connects
                 .iter()
-                .map(|c| {
-                    match c.state {
-                        ConnectState::Selected => {
-                            Line::from(format!(" Table .No : {}", c.table_no))
-                            .style(Style::new().fg(Color::Green))
-                        },
-                        ConnectState::Connected => {
-                            Line::from(format!(" Table .No : {} Conected", c.table_no))
-                            .style(Style::new().fg(Color::Yellow))
-                        },
-                        _ => {
-                            Line::from(format!(" Table .No : {}", c.table_no))
-                        },
-                    }
-                    
+                .map(|c| match c.state {
+                    ConnectState::Selected => Line::from(format!("   Table .No : {}", c.table_no))
+                        .style(Style::new().fg(Color::Green)),
+                    ConnectState::Connected => Line::from(format!(" * Table .No : {}", c.table_no))
+                        .style(Style::new().fg(Color::Yellow)),
+                    _ => Line::from(format!("   Table .No : {}", c.table_no)),
                 })
                 .collect::<Vec<Line>>();
             let paragraph = Paragraph::new(connects_view)
@@ -50,7 +56,5 @@ impl Widget for &ConnectWidget {
                 .block(Block::bordered().borders(Borders::ALL));
             paragraph.render(area, buf);
         }
-
-      
     }
 }
