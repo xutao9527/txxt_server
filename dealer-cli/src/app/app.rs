@@ -25,7 +25,6 @@ pub struct App {
     connect_widget:ConnectWidget,
     log_widget: LogWidget,
     state_widget: StateWidget,
-
 }
 
 impl App {
@@ -85,25 +84,34 @@ impl App {
         if let Event::Key(key) = event::read().expect("failed to read event") {
             if key.kind == KeyEventKind::Press {
                 if let Some(app_data) = self.app_data.upgrade() {
-                    let data = app_data.read().unwrap();
+                    
                             
                     match key.code {
                         KeyCode::Char('s') => {
+                            app_data.write().unwrap().terminal_mode = TerminalMode::Control;
                             SLog::info(format!("App input [{}]", key.code));
+                            return;
                         },
                         KeyCode::Char('c') => {
+                            app_data.write().unwrap().terminal_mode = TerminalMode::Connect;
                             SLog::info(format!("App input [{}]", key.code));
+                            return;
                         },
-                        _ => {
-
-                        }
+                        KeyCode::Char('q') => {
+                            app_data.write().unwrap().should_exit = true;
+                            SLog::info(format!("App input [{}]", key.code));
+                            return;
+                        },
+                        _ => {}
                     }
-
+                    let data = app_data.read().unwrap();
                     match data.terminal_mode {
                         TerminalMode::Control => {
+                            drop(data);
                             self.control_widget.handle_events(key.code);
                         },
                         TerminalMode::Connect => {
+                            drop(data);
                             self.connect_widget.handle_events(key.code);
                         }
                         _ => {},

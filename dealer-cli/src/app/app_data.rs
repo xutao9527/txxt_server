@@ -98,7 +98,7 @@ impl AppData {
             .get_or_init(|| Arc::new(RwLock::new(
                 AppData {
                     should_exit: false,
-                    terminal_mode: TerminalMode::Control,
+                    terminal_mode: TerminalMode::Connect,
                     connects: ConnectInfo::default(),
                 })))
             .clone()
