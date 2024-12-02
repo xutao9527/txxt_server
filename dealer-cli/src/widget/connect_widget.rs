@@ -1,5 +1,6 @@
 use std::sync::{Arc, RwLock, Weak};
 
+use dealer::protocol::{definition::packet_request::PacketRequest, handler::PacketType, payload::{login::LoginReq, PacketPayload}};
 use ratatui::{
     buffer::Buffer,
     crossterm::event::KeyCode,
@@ -46,6 +47,19 @@ impl ConnectWidget {
                 if let Some(data) = self.app_data.upgrade() {
                     let data = &mut data.write().unwrap();
                     data.connected = Option::from(self.position);
+                    match data.dealer_client.open() {
+                        Ok(_) => {
+                            let login_req = PacketRequest {
+                                packet_type: PacketType::Login,
+                                packet_payload: PacketPayload::LoginReq(LoginReq {
+                                    user_name: data.connects[self.position].table_no.clone(),
+                                    pass_word: data.connects[self.position].password.clone(),
+                                }),
+                            };
+                            let _ = data.dealer_client.send(login_req);
+                        },
+                        Err(_) => {},
+                    }
                     SLog::info(format!("Connect input [{}] [{:?}]", code, self.position));
                 }
             }

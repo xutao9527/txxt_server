@@ -3,6 +3,7 @@ use app::app::App;
 mod app;
 mod log;
 mod widget;
+mod net;
 
 fn main() {
     let terminal = ratatui::init();

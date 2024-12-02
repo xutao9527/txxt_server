@@ -1,5 +1,7 @@
 use std::sync::{Arc, OnceLock, RwLock};
 
+use crate::net::dealer_client::DealerClient;
+
 static APP_DATA: OnceLock<Arc<RwLock<AppData>>> = OnceLock::new();
 
 pub enum TerminalMode {
@@ -102,6 +104,7 @@ pub struct AppData {
     pub terminal_mode: TerminalMode,
     pub connects: Vec<ConnectInfo>,
     pub connected: Option<usize>,
+    pub dealer_client: DealerClient,
 }
 
 impl AppData {
@@ -113,6 +116,7 @@ impl AppData {
                     terminal_mode: TerminalMode::Connect,
                     connects: ConnectInfo::default(),
                     connected: None,
+                    dealer_client: DealerClient::new("127.0.0.1:8080".into()),
                 }))
             })
             .clone()
