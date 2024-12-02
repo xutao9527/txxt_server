@@ -14,15 +14,15 @@ use crate::{
     },
 };
 
-use super::app_data::AppData;
+use super::app_data::{AppData, TerminalMode};
 
 pub struct App {
     app_data: Weak<RwLock<AppData>>,
-    info_widget:InfoWidget,
-    view_widget:ViewWidget,
-    control_widget:ControlWidget,
+    info_widget: InfoWidget,
+    view_widget: ViewWidget,
+    control_widget: ControlWidget,
     log_widget: LogWidget,
-    state_widget:StateWidget,
+    state_widget: StateWidget,
 }
 
 impl App {
@@ -30,11 +30,11 @@ impl App {
         SLog::init(log_cache);
         Self {
             app_data: Arc::downgrade(&AppData::singleton()),
-            info_widget:InfoWidget::default(),
-            view_widget:ViewWidget::default(),
-            control_widget:ControlWidget::default(),
+            info_widget: InfoWidget::default(),
+            view_widget: ViewWidget::default(),
+            control_widget: ControlWidget::default(),
             log_widget: LogWidget::default(),
-            state_widget:StateWidget::default(),
+            state_widget: StateWidget::default(),
         }
     }
 
@@ -42,8 +42,6 @@ impl App {
         loop {
             if let Some(app_data) = self.app_data.upgrade() {
                 let data = app_data.read().unwrap();
-                let should_exit_log = format!("App run should_exit [{}]", data.should_exit);
-                SLog::info(should_exit_log);
                 if data.should_exit {
                     break;
                 }
@@ -76,15 +74,18 @@ impl App {
 
     fn handle_events(&mut self) {
         if let Event::Key(key) = event::read().expect("failed to read event") {
-            if key.kind == KeyEventKind::Press && key.code == KeyCode::Char('q') {
+            if key.kind == KeyEventKind::Press {
                 if let Some(app_data) = self.app_data.upgrade() {
-                    let mut data = app_data.write().unwrap();
-                    data.should_exit = true;
-                    let should_exit_log =
-                        format!("handle_events should_exit [{}]", data.should_exit);
-                    SLog::err(should_exit_log);
+                    let data = app_data.read().unwrap();
+                    match data.terminal_mode {
+                        TerminalMode::Control => {
+                            self.control_widget.handle_events(key.code);
+                        },
+                        _ => {},
+                    }
                 }
             }
         }
+        
     }
 }

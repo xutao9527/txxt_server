@@ -2,9 +2,9 @@ use std::sync::{Arc, OnceLock, RwLock};
 
 static APP_DATA: OnceLock<Arc<RwLock<AppData>>> = OnceLock::new();
 
-enum TerminalMode {
+pub enum TerminalMode {
     Connect,
-    DewSelect
+    Control
 }
 
 pub struct AppData {
@@ -18,7 +18,7 @@ impl AppData {
             .get_or_init(|| Arc::new(RwLock::new(
                 AppData { 
                     should_exit: false,
-                    terminal_mode:TerminalMode::DewSelect
+                    terminal_mode:TerminalMode::Control
                 })))
             .clone()
     }

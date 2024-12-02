@@ -4,11 +4,12 @@ use btn::Button;
 use futures_util::SinkExt;
 use ratatui::{
     buffer::Buffer,
+    crossterm::event::KeyCode,
     layout::{Constraint, Layout, Rect},
     widgets::{Block, Borders, Widget},
 };
 
-use crate::app::app_data::AppData;
+use crate::{app::app_data::AppData, log::log::SLog};
 
 use super::util::widget_util;
 
@@ -20,36 +21,83 @@ pub struct ControlWidget {
 
 impl Default for ControlWidget {
     fn default() -> Self {
+        let mut default_btn = Button::new("庄".into());
+        default_btn.select();
         let buttons = vec![
             vec![
-                Button::new("庄".into(), (0, 0)).select(),
-                Button::new("庄-庄对".into(), (0, 1)),
-                Button::new("庄-闲对".into(), (0, 2)),
-                Button::new("庄-庄闲对".into(), (0, 3)),
+                default_btn,
+                Button::new("庄-庄对".into()),
+                Button::new("庄-闲对".into()),
+                Button::new("庄-庄闲对".into()),
             ],
             vec![
-                Button::new("闲".into(), (1, 0)),
-                Button::new("闲-庄对".into(), (1, 1)),
-                Button::new("闲-闲对".into(), (1, 2)),
-                Button::new("闲-庄闲对".into(), (1, 3)),
+                Button::new("闲".into()),
+                Button::new("闲-庄对".into()),
+                Button::new("闲-闲对".into()),
+                Button::new("闲-庄闲对".into()),
             ],
             vec![
-                Button::new("和".into(), (2, 0)),
-                Button::new("和-庄对".into(), (2, 1)),
-                Button::new("和-闲对".into(), (2, 2)),
-                Button::new("和-庄闲对".into(), (2, 3)),
+                Button::new("和".into()),
+                Button::new("和-庄对".into()),
+                Button::new("和-闲对".into()),
+                Button::new("和-庄闲对".into()),
             ],
             vec![
-                Button::new("六".into(), (3, 0)),
-                Button::new("六-庄对".into(), (3, 1)),
-                Button::new("六-闲对".into(), (3, 2)),
-                Button::new("六-庄闲对".into(), (3, 3)),
+                Button::new("六".into()),
+                Button::new("六-庄对".into()),
+                Button::new("六-闲对".into()),
+                Button::new("六-庄闲对".into()),
             ],
         ];
         ControlWidget {
             position: (0, 0),
             app_data: Arc::downgrade(&AppData::singleton()),
             buttons,
+        }
+    }
+}
+
+impl ControlWidget {
+    pub fn handle_events(&mut self, code: KeyCode) {
+        match code {
+            KeyCode::Left => {
+                let (x, y) = self.position;
+                if x != 0 {
+                    self.position = (x - 1, y);
+                    self.buttons[x as usize][y as usize].deselect();
+                    self.buttons[(x - 1) as usize][y as usize].select();
+                }
+                SLog::info(format!("Control input [{}] [{:?}]", code, self.position));
+            }
+            KeyCode::Right => {
+                let (x, y) = self.position;
+                if x + 1 < 4 {
+                    self.position = (x + 1, y);
+                    self.buttons[x as usize][y as usize].deselect();
+                    self.buttons[(x + 1) as usize][y as usize].select();
+                }
+                SLog::info(format!("Control input [{}] [{:?}]", code, self.position));
+            }
+            KeyCode::Up => {
+                let (x, y) = self.position;
+                if y != 0 {
+                    self.position = (x, y - 1);
+                    self.buttons[x as usize][y as usize].deselect();
+                    self.buttons[x as usize][(y - 1) as usize].select();
+                }
+
+                SLog::info(format!("Control input [{}] [{:?}]", code, self.position));
+            }
+            KeyCode::Down => {
+                let (x, y) = self.position;
+                if y + 1 < 4 {
+                    self.position = (x, y + 1);
+                    self.buttons[x as usize][y as usize].deselect();
+                    self.buttons[x as usize][(y + 1) as usize].select();
+                }
+                SLog::info(format!("Control input [{}] [{:?}]", code, self.position));
+            }
+            _ => {}
         }
     }
 }
@@ -105,21 +153,23 @@ mod btn {
     pub struct Button {
         label: String,
         state: State,
-        position: (u16, u16),
+       
     }
 
     impl Button {
-        pub fn new(lable: String, position: (u16, u16)) -> Self {
+        pub fn new(lable: String) -> Self {
             Button {
                 label: lable,
                 state: State::Normal,
-                position,
             }
         }
 
-        pub fn select(mut self) -> Self {
+        pub fn deselect(&mut self) {
+            self.state = State::Normal;
+        }
+
+        pub fn select(&mut self) {
             self.state = State::Selected;
-            self
         }
     }
 
