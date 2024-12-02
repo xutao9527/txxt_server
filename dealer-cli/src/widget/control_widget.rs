@@ -1,6 +1,7 @@
 use std::sync::{Arc, RwLock, Weak};
 
 use btn::Button;
+use futures_util::SinkExt;
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Layout, Rect},
