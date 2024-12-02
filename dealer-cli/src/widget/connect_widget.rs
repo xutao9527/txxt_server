@@ -1,6 +1,5 @@
 use std::sync::{Arc, RwLock, Weak};
 
-use dealer::protocol::{definition::packet_request::PacketRequest, handler::PacketType, payload::{login::LoginReq, PacketPayload}};
 use ratatui::{
     buffer::Buffer,
     crossterm::event::KeyCode,
@@ -12,60 +11,43 @@ use ratatui::{
 
 use crate::{
     app::app_data::{AppData, ConnectState},
-    log::log::SLog, net::business_api::login,
+    net::business_api::req_api::{self},
 };
 
 pub struct ConnectWidget {
     app_data: Weak<RwLock<AppData>>,
-    position: usize,
 }
 
 impl ConnectWidget {
     pub fn handle_events(&mut self, code: KeyCode) {
         match code {
             KeyCode::Up => {
-                if self.position != 0 {
-                    if let Some(data) = self.app_data.upgrade() {
-                        let connects = &mut data.write().unwrap().connects;
-                        connects[self.position].state = ConnectState::Normal;
-                        self.position -= 1;
-                        connects[self.position].state = ConnectState::Selected;
+                if let Some(app_data) = self.app_data.upgrade() {
+                    if let Ok(mut data) = app_data.write() {
+                        if data.client_select_id != 0 {
+                            let select_id = data.client_select_id;
+                            data.client_select_id = data.client_select_id - 1;
+                            data.connects[select_id].state = ConnectState::Normal;
+                            data.connects[select_id - 1].state = ConnectState::Selected;
+                        }
                     }
                 }
             }
             KeyCode::Down => {
-                if self.position < 11 {
-                    if let Some(data) = self.app_data.upgrade() {
-                        let connects = &mut data.write().unwrap().connects;
-                        connects[self.position].state = ConnectState::Normal;
-                        self.position += 1;
-                        connects[self.position].state = ConnectState::Selected;
+                if let Some(app_data) = self.app_data.upgrade() {
+                    if let Ok(mut data) = app_data.write() {
+                        if data.client_select_id < 11 {
+                            let select_id = data.client_select_id;
+                            data.client_select_id = data.client_select_id + 1;
+                            data.connects[select_id].state = ConnectState::Normal;
+                            data.connects[select_id + 1].state = ConnectState::Selected;
+                        }
                     }
                 }
             }
             KeyCode::Enter => {
-                if let Some(data) = self.app_data.upgrade() {
-                    let data: &mut std::sync::RwLockWriteGuard<'_, AppData> = &mut data.write().unwrap();
-
-                    //data.connected = Option::from(self.position);
-
-                    let connect_info = data.connects[self.position].clone();
-
-                    match data.dealer_client.open() {
-                        Ok(_) => {
-                            login(data,connect_info);
-                            // let login_req = PacketRequest {
-                            //     packet_type: PacketType::Login,
-                            //     packet_payload: PacketPayload::LoginReq(LoginReq {
-                            //         user_name: data.connects[self.position].table_no.clone(),
-                            //         pass_word: data.connects[self.position].password.clone(),
-                            //     }),
-                            // };
-                            // let _ = data.dealer_client.send(login_req);
-                        },
-                        Err(_) => {},
-                    }
-                    SLog::info(format!("Connect input [{}] [{:?}]", code, self.position));
+                if let Ok(_) = req_api::open() {
+                    req_api::login();
                 }
             }
             _ => {}
@@ -77,7 +59,6 @@ impl Default for ConnectWidget {
     fn default() -> Self {
         ConnectWidget {
             app_data: Arc::downgrade(&AppData::singleton()),
-            position: 0,
         }
     }
 }
@@ -93,26 +74,26 @@ impl Widget for &ConnectWidget {
             let connects_view = connects
                 .iter()
                 .enumerate()
-                .map(|(i, c)| {
-                    let con_view_str = match data.connected {
+                .map(|(index, connect_info)| {
+                    let con_view_str = match data.client_connected_id {
                         Some(pos) => {
-                            if pos == i {
-                                format!(" * Table .No : {}", c.table_no)
+                            if pos == index {
+                                format!(" * Table .No : {}", connect_info.table_no)
                             } else {
-                                format!("   Table .No : {}", c.table_no)
+                                format!("   Table .No : {}", connect_info.table_no)
                             }
                         }
                         None => {
-                            format!("   Table .No : {}", c.table_no)
+                            format!("   Table .No : {}", connect_info.table_no)
                         }
                     };
-                    match c.state {
+                    match connect_info.state {
                         ConnectState::Selected => {
                             Line::from(con_view_str).style(Style::new().fg(Color::Green))
                         }
-                        _ => match data.connected {
+                        _ => match data.client_connected_id {
                             Some(pos) => {
-                                if pos == i {
+                                if pos == index {
                                     Line::from(con_view_str).style(Style::new().fg(Color::Yellow))
                                 } else {
                                     Line::from(con_view_str)

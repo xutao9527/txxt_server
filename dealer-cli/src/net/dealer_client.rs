@@ -1,7 +1,4 @@
-use std::{
-    error::Error,
-    sync::{Arc, Mutex},
-};
+use std::error::Error;
 
 use bytes::Bytes;
 use dealer::protocol::definition::packet_request::PacketRequest;
@@ -14,16 +11,17 @@ use tokio_util::codec::{FramedRead, FramedWrite, LengthDelimitedCodec};
 
 use crate::log::log::SLog;
 
-pub struct DealerClient {
+pub struct GameClient {
     rt: Runtime,
     server_addr: String,
     framed_writer: Option<FramedWrite<tokio::net::tcp::OwnedWriteHalf, LengthDelimitedCodec>>,
     framed_reader: Option<FramedRead<tokio::net::tcp::OwnedReadHalf, LengthDelimitedCodec>>,
 }
 
-impl DealerClient {
+impl GameClient {
     pub fn new(server_addr: String) -> Self {
-        let rt = Builder::new_multi_thread().worker_threads(2)
+        let rt = Builder::new_multi_thread()
+            .worker_threads(2)
             .enable_all()
             .build()
             .expect("Failed to create runtime");
@@ -79,9 +77,9 @@ impl DealerClient {
         result
     }
 
-    // pub fn close(&mut self) {
-    //     self.framed_writer = None;
-    //     self.framed_reader = None;
-    //     println!("connection to server closed.");
-    // }
+    pub fn close(&mut self) {
+        self.framed_writer = None;
+        self.framed_reader = None;
+        println!("connection to server closed.");
+    }
 }
