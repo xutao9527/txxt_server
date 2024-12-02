@@ -1,13 +1,11 @@
 use std::sync::{Arc, RwLock, Weak};
 
 use ratatui::{
-    buffer::Buffer,
-    layout::Rect,
-    text::Text,
-    widgets::{Block, Borders, Paragraph, Widget},
+    buffer::Buffer, layout::Rect, style::{Color, Style, Stylize}, text::Line, widgets::{Block, Borders, Paragraph, Widget}
 };
 
-use crate::app::app_data::AppData;
+use crate::app::app_data::{AppData, ConnectState};
+
 pub struct ConnectWidget {
     app_data: Weak<RwLock<AppData>>,
 }
@@ -22,11 +20,37 @@ impl Default for ConnectWidget {
 
 impl Widget for &ConnectWidget {
     fn render(self, area: Rect, buf: &mut Buffer)
-        where
-            Self: Sized,
+    where
+        Self: Sized,
     {
-        let log_block = Block::bordered().borders(Borders::ALL);
-        let log_block = Paragraph::new(Text::raw("ConnectWidget")).block(log_block);
-        log_block.render(area, buf);
+        if let Some(app_data) = self.app_data.upgrade() {
+            let data = app_data.read().unwrap();
+            let connects = &data.connects;
+            let connects_view = connects
+                .iter()
+                .map(|c| {
+                    match c.state {
+                        ConnectState::Selected => {
+                            Line::from(format!(" Table .No : {}", c.table_no))
+                            .style(Style::new().fg(Color::Green))
+                        },
+                        ConnectState::Connected => {
+                            Line::from(format!(" Table .No : {} Conected", c.table_no))
+                            .style(Style::new().fg(Color::Yellow))
+                        },
+                        _ => {
+                            Line::from(format!(" Table .No : {}", c.table_no))
+                        },
+                    }
+                    
+                })
+                .collect::<Vec<Line>>();
+            let paragraph = Paragraph::new(connects_view)
+                .gray()
+                .block(Block::bordered().borders(Borders::ALL));
+            paragraph.render(area, buf);
+        }
+
+      
     }
 }

@@ -71,7 +71,7 @@ impl App {
             Layout::horizontal([Constraint::Fill(1), Constraint::Length(50)]).areas(v2);
 
         let [log_view, connect_view] =
-            Layout::horizontal([Constraint::Fill(1), Constraint::Length(30)]).areas(v3);
+            Layout::horizontal([Constraint::Fill(1), Constraint::Length(27)]).areas(v3);
 
         frame.render_widget(&self.info_widget, v1);
         frame.render_widget(&self.view_widget, game_view);
