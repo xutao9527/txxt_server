@@ -8,6 +8,7 @@ use ratatui::{
     text::Line,
     widgets::{Block, Borders, Paragraph, Widget},
 };
+use tokio::time::error::Elapsed;
 
 use crate::app::app_data::{AppData, ConnectState};
 
@@ -26,7 +27,6 @@ impl ConnectWidget {
                         connects[self.position as usize].state = ConnectState::Normal;
                         self.position -= 1;
                         connects[self.position as usize].state = ConnectState::Selected;
-                      
                     }
                 }
             }
@@ -64,12 +64,24 @@ impl Widget for &ConnectWidget {
             let connects = &data.connects;
             let connects_view = connects
                 .iter()
-                .map(|c| match c.state {
-                    ConnectState::Selected => Line::from(format!("   Table .No : {}", c.table_no))
-                        .style(Style::new().fg(Color::Green)),
-                    ConnectState::Connected => Line::from(format!(" * Table .No : {}", c.table_no))
-                        .style(Style::new().fg(Color::Yellow)),
-                    _ => Line::from(format!("   Table .No : {}", c.table_no)),
+                .map(|c| {
+                    let con_view_str = if c.connected {
+                        format!(" * Table .No : {}", c.table_no)
+                    } else {
+                        format!("   Table .No : {}", c.table_no)
+                    };
+                    match c.state {
+                        ConnectState::Selected => {
+                            Line::from(con_view_str).style(Style::new().fg(Color::Green))
+                        }
+                        _ => {
+                            if c.connected {
+                                Line::from(con_view_str).style(Style::new().fg(Color::Yellow))
+                            } else {
+                                Line::from(con_view_str)
+                            }
+                        }
+                    }
                 })
                 .collect::<Vec<Line>>();
             let paragraph = Paragraph::new(connects_view)

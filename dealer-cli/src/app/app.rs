@@ -84,8 +84,6 @@ impl App {
         if let Event::Key(key) = event::read().expect("failed to read event") {
             if key.kind == KeyEventKind::Press {
                 if let Some(app_data) = self.app_data.upgrade() {
-                    
-                            
                     match key.code {
                         KeyCode::Char('s') => {
                             app_data.write().unwrap().terminal_mode = TerminalMode::Control;
