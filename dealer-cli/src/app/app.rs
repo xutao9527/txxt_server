@@ -13,6 +13,7 @@ use crate::{
         state_widget::StateWidget, view_widget::ViewWidget,
     },
 };
+use crate::widget::connect_widget::ConnectWidget;
 
 use super::app_data::{AppData, TerminalMode};
 
@@ -21,8 +22,10 @@ pub struct App {
     info_widget: InfoWidget,
     view_widget: ViewWidget,
     control_widget: ControlWidget,
+    connect_widget:ConnectWidget,
     log_widget: LogWidget,
     state_widget: StateWidget,
+
 }
 
 impl App {
@@ -33,6 +36,7 @@ impl App {
             info_widget: InfoWidget::default(),
             view_widget: ViewWidget::default(),
             control_widget: ControlWidget::default(),
+            connect_widget: ConnectWidget::default(),
             log_widget: LogWidget::default(),
             state_widget: StateWidget::default(),
         }
@@ -56,7 +60,7 @@ impl App {
     fn draw(&self, frame: &mut Frame) {
         let [frame_view, _] =
             Layout::horizontal([Constraint::Fill(1), Constraint::Length(1)]).areas(frame.area());
-        let [info, game, log, state] = Layout::vertical([
+        let [v1, v2, v3, v4] = Layout::vertical([
             Constraint::Length(3),
             Constraint::Length(14),
             Constraint::Fill(1),
@@ -64,12 +68,17 @@ impl App {
         ])
         .areas(frame_view);
         let [game_view, game_control] =
-            Layout::horizontal([Constraint::Fill(1), Constraint::Length(50)]).areas(game);
-        frame.render_widget(&self.info_widget, info);
+            Layout::horizontal([Constraint::Fill(1), Constraint::Length(50)]).areas(v2);
+
+        let [log_view, connect_view] =
+            Layout::horizontal([Constraint::Fill(1), Constraint::Length(30)]).areas(v3);
+
+        frame.render_widget(&self.info_widget, v1);
         frame.render_widget(&self.view_widget, game_view);
         frame.render_widget(&self.control_widget, game_control);
-        frame.render_widget(&self.log_widget, log);
-        frame.render_widget(&self.state_widget, state);
+        frame.render_widget(&self.log_widget, log_view);
+        frame.render_widget(&self.connect_widget, connect_view);
+        frame.render_widget(&self.state_widget, v4);
     }
 
     fn handle_events(&mut self) {
