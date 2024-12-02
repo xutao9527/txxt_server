@@ -39,6 +39,87 @@ pub async fn migrate_table_board(db_backend: DatabaseBackend) {
                     updated_at:Some(Utc::now()),
                     ..Default::default()
                 },
+                table_board::Model {
+                    id: 4,
+                    table_no: Some("104".to_string()),
+                    password: Some(format!("{:x}", md5::compute("bjl9527"))),
+                    status: true,
+                    created_at:Some(Utc::now()),
+                    updated_at:Some(Utc::now()),
+                    ..Default::default()
+                },
+                table_board::Model {
+                    id: 5,
+                    table_no: Some("105".to_string()),
+                    password: Some(format!("{:x}", md5::compute("bjl9527"))),
+                    status: true,
+                    created_at:Some(Utc::now()),
+                    updated_at:Some(Utc::now()),
+                    ..Default::default()
+                },
+                table_board::Model {
+                    id: 6,
+                    table_no: Some("106".to_string()),
+                    password: Some(format!("{:x}", md5::compute("bjl9527"))),
+                    status: true,
+                    created_at:Some(Utc::now()),
+                    updated_at:Some(Utc::now()),
+                    ..Default::default()
+                },
+                table_board::Model {
+                    id: 7,
+                    table_no: Some("107".to_string()),
+                    password: Some(format!("{:x}", md5::compute("bjl9527"))),
+                    status: true,
+                    created_at:Some(Utc::now()),
+                    updated_at:Some(Utc::now()),
+                    ..Default::default()
+                },
+                table_board::Model {
+                    id: 8,
+                    table_no: Some("108".to_string()),
+                    password: Some(format!("{:x}", md5::compute("bjl9527"))),
+                    status: true,
+                    created_at:Some(Utc::now()),
+                    updated_at:Some(Utc::now()),
+                    ..Default::default()
+                },
+                table_board::Model {
+                    id: 9,
+                    table_no: Some("109".to_string()),
+                    password: Some(format!("{:x}", md5::compute("bjl9527"))),
+                    status: true,
+                    created_at:Some(Utc::now()),
+                    updated_at:Some(Utc::now()),
+                    ..Default::default()
+                },
+                table_board::Model {
+                    id: 10,
+                    table_no: Some("110".to_string()),
+                    password: Some(format!("{:x}", md5::compute("bjl9527"))),
+                    status: true,
+                    created_at:Some(Utc::now()),
+                    updated_at:Some(Utc::now()),
+                    ..Default::default()
+                },
+                table_board::Model {
+                    id: 11,
+                    table_no: Some("111".to_string()),
+                    password: Some(format!("{:x}", md5::compute("bjl9527"))),
+                    status: true,
+                    created_at:Some(Utc::now()),
+                    updated_at:Some(Utc::now()),
+                    ..Default::default()
+                },
+                table_board::Model {
+                    id: 12,
+                    table_no: Some("112".to_string()),
+                    password: Some(format!("{:x}", md5::compute("bjl9527"))),
+                    status: true,
+                    created_at:Some(Utc::now()),
+                    updated_at:Some(Utc::now()),
+                    ..Default::default()
+                },
             ]
                 .into_iter()
                 .map(|model| model.into_active_model())

@@ -1,12 +1,12 @@
-use dbs::dao::TableBoardDao;
+use dbs::{dao::TableBoardDao, migrate};
 use dbs::model::table_board;
-use sea_orm::{ColumnTrait, Condition};
+use sea_orm::{ColumnTrait, Condition, DatabaseBackend};
 
 #[tokio::main]
 async fn main() {
     dotenv::dotenv().ok();
     common::global::Config::initialize().await;
-    //migrate::start_migrate(DatabaseBackend::Sqlite).await;
+    migrate::start_migrate(DatabaseBackend::Sqlite).await;
     let condition = Condition::all()
         .add(table_board::Column::TableNo.eq("101"))
         .add(table_board::Column::Password.eq("7735a36e802561ef44249c039c8db410"));
