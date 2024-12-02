@@ -8,13 +8,15 @@ use ratatui::{
     text::Line,
     widgets::{Block, Borders, Paragraph, Widget},
 };
-use tokio::time::error::Elapsed;
 
-use crate::app::app_data::{AppData, ConnectState};
+use crate::{
+    app::app_data::{AppData, ConnectState},
+    log::log::SLog,
+};
 
 pub struct ConnectWidget {
     app_data: Weak<RwLock<AppData>>,
-    position: u16,
+    position: usize,
 }
 
 impl ConnectWidget {
@@ -24,9 +26,9 @@ impl ConnectWidget {
                 if self.position != 0 {
                     if let Some(data) = self.app_data.upgrade() {
                         let connects = &mut data.write().unwrap().connects;
-                        connects[self.position as usize].state = ConnectState::Normal;
+                        connects[self.position].state = ConnectState::Normal;
                         self.position -= 1;
-                        connects[self.position as usize].state = ConnectState::Selected;
+                        connects[self.position].state = ConnectState::Selected;
                     }
                 }
             }
@@ -34,10 +36,17 @@ impl ConnectWidget {
                 if self.position < 11 {
                     if let Some(data) = self.app_data.upgrade() {
                         let connects = &mut data.write().unwrap().connects;
-                        connects[self.position as usize].state = ConnectState::Normal;
+                        connects[self.position].state = ConnectState::Normal;
                         self.position += 1;
-                        connects[self.position as usize].state = ConnectState::Selected;
+                        connects[self.position].state = ConnectState::Selected;
                     }
+                }
+            }
+            KeyCode::Enter => {
+                if let Some(data) = self.app_data.upgrade() {
+                    let data = &mut data.write().unwrap();
+                    data.connected = Option::from(self.position);
+                    SLog::info(format!("Connect input [{}] [{:?}]", code, self.position));
                 }
             }
             _ => {}
@@ -64,23 +73,34 @@ impl Widget for &ConnectWidget {
             let connects = &data.connects;
             let connects_view = connects
                 .iter()
-                .map(|c| {
-                    let con_view_str = if c.connected {
-                        format!(" * Table .No : {}", c.table_no)
-                    } else {
-                        format!("   Table .No : {}", c.table_no)
+                .enumerate()
+                .map(|(i, c)| {
+                    let con_view_str = match data.connected {
+                        Some(pos) => {
+                            if pos == i {
+                                format!(" * Table .No : {}", c.table_no)
+                            } else {
+                                format!("   Table .No : {}", c.table_no)
+                            }
+                        }
+                        None => {
+                            format!("   Table .No : {}", c.table_no)
+                        }
                     };
                     match c.state {
                         ConnectState::Selected => {
                             Line::from(con_view_str).style(Style::new().fg(Color::Green))
                         }
-                        _ => {
-                            if c.connected {
-                                Line::from(con_view_str).style(Style::new().fg(Color::Yellow))
-                            } else {
-                                Line::from(con_view_str)
+                        _ => match data.connected {
+                            Some(pos) => {
+                                if pos == i {
+                                    Line::from(con_view_str).style(Style::new().fg(Color::Yellow))
+                                } else {
+                                    Line::from(con_view_str)
+                                }
                             }
-                        }
+                            None => Line::from(con_view_str),
+                        },
                     }
                 })
                 .collect::<Vec<Line>>();
