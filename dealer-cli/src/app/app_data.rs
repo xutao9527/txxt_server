@@ -1,6 +1,6 @@
 use std::sync::{Arc, OnceLock, RwLock};
 
-use crate::net::dealer_client::GameClient;
+use crate::net::game_client::GameClient;
 
 static APP_DATA: OnceLock<Arc<RwLock<AppData>>> = OnceLock::new();
 
